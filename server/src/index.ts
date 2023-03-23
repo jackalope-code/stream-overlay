@@ -1,12 +1,16 @@
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import http from 'http';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 import redis from 'redis'
 import express from 'express';
 import {Request} from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import http from 'http';
+
 import { typeDefs, resolvers } from './schema.js';
 
 const SERVER_PORT = "4000";
@@ -30,13 +34,40 @@ const app = express();
 // enabling our servers to shut down gracefully.
 const httpServer = http.createServer(app);
 
-// Same ApolloServer initialization as before, plus the drain plugin
-// for our httpServer.
-const server = new ApolloServer<MyContext>({
-  typeDefs,
-  resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+// Creating the WebSocket server
+const wsServer = new WebSocketServer({
+  // This is the `httpServer` we created in a previous step.
+  server: httpServer,
+  // Pass a different path here if app.use
+  // serves expressMiddleware at a different path
+  path: '/graphql',
 });
+
+// Hand in the schema we just created and have the
+// WebSocketServer start listening.
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const serverCleanup = useServer({ schema }, wsServer);
+
+const server = new ApolloServer({
+  schema,
+  plugins: [
+    // Proper shutdown for the HTTP server.
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+    // Proper shutdown for the WebSocket server.
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
+});
+
 // Ensure we wait for our server to start
 await server.start();
 
@@ -55,10 +86,6 @@ app.use(
   }),
 );
 
-// Modified server startup
-await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
-console.log(`🚀 Server ready at http://localhost:4000/`);
-app.use(cors());
 
 app.get("/components/:id", (req: Request<{id: string}>, res, err) => {
   res.status(200).json({id: req.params.id, moving: mockMovingCheck(req.params.id)})
@@ -68,6 +95,7 @@ app.get("/", (req, res, err) => {
   res.send("Hello");
 })
 
-app.listen(SERVER_PORT, () => {
-  console.log(`Express server listening on port ${SERVER_PORT}`)
-})
+// Modified server startup
+await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
+console.log(`🚀 Server ready at http://localhost:4000/`);
+app.use(cors());

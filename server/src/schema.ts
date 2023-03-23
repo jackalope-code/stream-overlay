@@ -9,7 +9,17 @@ export const resolvers = {
 }
 
 export const typeDefs = gql`
-  Query {
+  type ComponentData {
+    id: ID!
+    x: Int!
+    y: Int!
+    moving: Boolean!
+    owner: String
+  }
+  type Query {
     test: String
+  }
+  type Subscription {
+    componentUpdate: ComponentData
   }
 `
