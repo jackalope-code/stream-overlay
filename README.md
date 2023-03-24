@@ -3,9 +3,10 @@
 ## TODO
 ### Server
 - Finish implementing subscriptions, queries, models and split effectively (subscriptions over ws and the rest over http)
-- Support image uploading and processing and map this to stored ids in order to load moveable components properly
 ### Client
 - Integrate with Apollo and process subscriptions for updates
+### Server/Client
+- Support image uploading and processing and map this to stored ids in order to load moveable components properly
 ### Server
 - Use redis to sync and persist changes
 ### General
