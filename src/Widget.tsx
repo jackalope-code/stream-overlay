@@ -1,13 +1,15 @@
 import axios from 'axios';
 import { MouseEventHandler, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
+import { SendMessage } from 'react-use-websocket';
 
 export interface WidgetProps {
   id: string;
   owner?: string;
   moving: boolean;
-  startX: number;
-  startY: number;
+  x: number;
+  y: number;
+  sendMessage: SendMessage;
 }
 
 interface LimitedProps {
@@ -20,9 +22,9 @@ const queryMoving = async (id: string) => {
   return res.data.moving;
 }
 
-const Widget: React.FC<WidgetProps> = ({id, owner, startX, startY}) => {
-  const [x, setX] = useState(startX);
-  const [y, setY] = useState(startY);
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage}) => {
+  // const [x, setX] = useState(startX);
+  // const [y, setY] = useState(startY);
   const [disabled, setDisabled] = useState(false);
   const [userLock, setUserLock] = useState(false);
 
@@ -58,9 +60,11 @@ const Widget: React.FC<WidgetProps> = ({id, owner, startX, startY}) => {
   }
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
+    sendMessage(JSON.stringify({id: id, x: data.x, y: data.y}))
     console.log("Drag update");
-    setX(data.x);
-    setY(data.y);
+    // TODO: NEEDS TO UPDATE LOCALLY AS WELL
+    // setX(data.x);
+    // setY(data.y);
     console.log(data);
     console.log(data.node.id);
   }

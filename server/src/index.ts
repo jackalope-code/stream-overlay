@@ -1,15 +1,16 @@
-import { WebSocketServer } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import redis from 'redis'
 import express from 'express';
 import {Request} from 'express';
 import cors from 'cors';
 import expressWs from "express-ws";
+import {randomUUID} from "crypto";
 
 const SERVER_PORT = "4000";
 
 function mockMovingCheck(id: any) {
   if( id === "1") {
-    return false;
+    return true;
   } else if (id === "2") {
     return true;
   }
@@ -17,7 +18,7 @@ function mockMovingCheck(id: any) {
 
 let appBase = express();
 let wsInstance = expressWs(appBase);
-let { app } = wsInstance; // let app = wsInstance.app;
+let { app } = wsInstance;
 
 
 app.use(cors<cors.CorsRequest>(
@@ -28,11 +29,26 @@ app.use(cors<cors.CorsRequest>(
 
 // TODO: AUTH LAYER HERE
 
-app.ws('/', function(ws, req) {
+interface WebSocketClient {
+  id: string;
+  ws: WebSocket;
+};
+
+// TODO: CL
+const clients: WebSocket[] = [];
+
+app.ws('/', function(ws, req: Request<{}>) {
+  const id = randomUUID();
+  clients.push(ws);
   ws.on('message', function(msg) {
-    console.log(msg);
+    // TODO: vulnerable (naive) broadcasting
+    for(let client of clients) {
+      // TODO: Normally an ok check for client side updates but this is a workaround bc nothing is moved without it rn
+      // if(client !== ws) {
+        client.send(msg)
+      // }
+    }
   });
-  console.log('socket', req.testing);
 });
 
 app.get("/components/:id", (req: Request<{id: string}>, res, err) => {
