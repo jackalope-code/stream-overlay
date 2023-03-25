@@ -31,7 +31,9 @@ From the command line:
 
 Running `npm run dev` from the server directory and `npm start` from the root stream-overlay directory is enough to start the API server and the webpage respectively, once npm dependencies are installed.
 
-Once the app is deployed, the API will run on a remote server and the webpage interfaces with the API. The users interface with the app from the browser and no dependencies are required for users at that point.
+Once the app is deployed, the API will run on a remote server and the webpage interfaces with the API. Users can then access the app from the browser with no dependency requirements.
+
+When the basic functionality is working I'll host a version of the API for awhile. I don't currently have a good way to host the webpage for multiple users. I may be able to get away with hosting the page on GitHub, but I would not be able to create dynamic sessions that way (GitHub only supports static sites).
 
 ## Local testing
 - Start the development servers for the API and the webpage
@@ -39,7 +41,16 @@ Once the app is deployed, the API will run on a remote server and the webpage in
 - Updates to one window should be mirrored to the other window
 
 ## Issues
-Movement is totally bugged right now
+Movement is totally bugged right now (this is really bad)
+
+## Remaining work
+- Movement bugfix
+- Image linking. It's easier to require people host their own images and link, but this is insecure if they can change the resource and have the same url.
+- Some form of authorization or authentication
+- Allow linking videos and ensure they play through without restarting constantly
+- Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
+- I think an image/resource approval interface would be cool
+
 
 ## Environment variables
 TODO
