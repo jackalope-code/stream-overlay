@@ -26,7 +26,8 @@ From the command line:
 1. `cd` into the cloned repo directory (stream-overlay)
 2. Install dependencies  
 `npm install`
-3. Start the create-react-app development server with live reloading at http://localhost:3000
+3. Start the create-react-app development server with live reloading at http://localhost:3000  
+`npm start`
 
 Running `npm run dev` from the server directory and `npm start` from the root stream-overlay directory is enough to start the API server and the webpage respectively, once npm dependencies are installed.
 
