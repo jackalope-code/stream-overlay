@@ -1,4 +1,5 @@
 # Realtime Networked Image Overlay
+Uses React to build a webpage and the npm express package for the API, among other npm dependencies.
 ## Installation for development
 ### Requirements
 - Requires Node.js https://nodejs.org/en
@@ -6,8 +7,6 @@
 - Visual Studio Code or a similar IDE with linting and integrated command line terminals recommended.
 - I'm going to Dockerize this at some point but Docker is not required for this to work.
 - Something like [Postman](https://www.postman.com/downloads/) can be used to inspect HTTP and WebSocket requests/responses from a GUI.
-
-Uses React and the npm express package, among other npm dependencies.
 
 Clone the repo from the command line:  
 ```git clone https://github.com/jackalope-code/stream-overlay```  
