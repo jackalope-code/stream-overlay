@@ -39,6 +39,21 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
     console.log("Dragging");
   }
 
+  const draggableStyling: React.CSSProperties = {
+    top: "0",
+    left: "0",
+    position: "absolute",
+    cursor: "grab",
+  };
+
+  const otherStyling: React.CSSProperties = {
+    width: "50px",
+    height: "50px",
+    backgroundColor: "green",
+  }
+
+  const combinedStyling = {...draggableStyling, ...otherStyling};
+
   return (
       <Draggable
         onStart={dragStartHandler}
@@ -49,7 +64,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
         // bounds={{left: 0, top: 0}}
       >
         {/* Text placeholder. Images and videos would go here. of */}
-        <div id={id} style={{top: "0", left: "0", position: "absolute", cursor: "grab"}}>Hello!</div>
+        <div id={id} style={combinedStyling}>Drag me!</div>
       </Draggable>
   )
 }
