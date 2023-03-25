@@ -1,5 +1,4 @@
-import WebSocket, { WebSocketServer } from 'ws';
-import redis from 'redis'
+import WebSocket from 'ws';
 import express from 'express';
 import {Request} from 'express';
 import cors from 'cors';
@@ -7,14 +6,6 @@ import expressWs from "express-ws";
 import {randomUUID} from "crypto";
 
 const SERVER_PORT = "4000";
-
-function mockMovingCheck(id: any) {
-  if( id === "1") {
-    return true;
-  } else if (id === "2") {
-    return true;
-  }
-}
 
 let appBase = express();
 let wsInstance = expressWs(appBase);
@@ -29,29 +20,21 @@ app.use(cors<cors.CorsRequest>(
 
 // TODO: AUTH LAYER HERE
 
-interface WebSocketClient {
-  id: string;
-  ws: WebSocket;
-};
-
-// TODO: CL
+// Track all connected websocket clients
+// TODO: Limits?
 const clients: WebSocket[] = [];
 
+// Forward update messages to other connected clients
 app.ws('/', function(ws, req: Request<{}>) {
-  const id = randomUUID();
   clients.push(ws);
   ws.on('message', function(msg) {
-    // TODO: vulnerable (naive) broadcasting
+    // TODO: vulnerable (naive) re-broadcasting
     for(let client of clients) {
       if(client !== ws) {
         client.send(msg)
       }
     }
   });
-});
-
-app.get("/components/:id", (req: Request<{id: string}>, res, err) => {
-  res.status(200).json({id: req.params.id, moving: mockMovingCheck(req.params.id)})
 });
 
 app.get("/", (req, res, err) => {
