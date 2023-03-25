@@ -74,7 +74,7 @@ app.ws('/', function(ws, req: Request<{}>) {
 
 // Get all components for the session
 app.get("/components", (req, res) => {
-  res.status(200).send(JSON.stringify(components));
+  res.status(200).send(JSON.stringify(Object.entries(components)));
 });
 
 // Add a new component
