@@ -15,7 +15,7 @@ Clone the repo from the command line:
 ### Starting the API server for the first time
 From the command line:  
 1. `cd` into the cloned repo directory (stream-overlay)
-2. Go to the server directory  
+2. Go into the server directory  
 `cd server`
 3. Install dependencies  
 `npm install`
