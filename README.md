@@ -14,7 +14,7 @@ Clone the repo from the command line:
 
 ### Starting the API server for the first time
 From the command line:  
-1. `cd` into the cloned repo server directory (stream-overlay)
+1. `cd` into the cloned repo directory (stream-overlay)
 2. `cd server`
 3. Install dependencies  
 `npm install`
@@ -63,7 +63,10 @@ Movement is totally bugged right now (this is really bad)
 - Redis for persistance?
 - Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
 - I think an image/resource approval interface would be cool
+- Bundle for faster deployment
 
+## Troubleshooting
+- If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
 
 ## Environment variables
 TODO
