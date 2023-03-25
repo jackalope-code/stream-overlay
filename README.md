@@ -14,8 +14,6 @@ Clone the repo from the command line:
 
 
 ### Starting the server
-WARNING: THE SERVER IS CURRENTLY BROKEN AND WILL NOT RUN UNTIL I FIX A MODULE RESOLUTION ISSUE  
-
 From the command line:  
 1. `cd` into the cloned repo server directory (stream-overlay)
 2. `cd server`
