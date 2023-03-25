@@ -40,6 +40,15 @@ When the basic functionality is working I'll host a version of the API for awhil
 - Open two browser windows to the url http://localhost:3000
 - Updates to one window should be mirrored to the other window
 
+## Local development
+**In the src folder:**  
+The entrypoint for the React App webpage is App.tsx. Right now it just contains Overlay.tsx
+
+Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overlay.tsx manages networking and widget data. Widget.tsx sets up event handlers and manages what is displayed for each moveable widget.
+
+
+
+
 ## Issues
 Movement is totally bugged right now (this is really bad)
 
