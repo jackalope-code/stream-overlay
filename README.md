@@ -57,8 +57,9 @@ Movement is totally bugged right now (this is really bad)
 - Image linking. It's easier to require people host their own images and link, but this is insecure if they can change the resource and have the same url.
 - Some form of authorization or authentication
 - Allow linking videos and ensure they play through without restarting constantly
-- Session management
 - Site hosting
+- Session management
+- Pretend to do UI/UX
 - Redis for persistance?
 - Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
 - I think an image/resource approval interface would be cool
