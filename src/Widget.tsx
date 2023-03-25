@@ -14,46 +14,13 @@ export interface WidgetProps {
   sendMessage: SendMessage;
 }
 
-interface LimitedProps {
-  id: string;
-  moving: boolean;
-}
-
-const queryMoving = async (id: string) => {
-  const res = await axios.get<LimitedProps>(`http://localhost:4000/components/${id}`);
-  return res.data.moving;
-}
-
+// Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
 const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setComponentData}) => {
-  // const [x, setX] = useState(startX);
-  // const [y, setY] = useState(startY);
+  // Unused state variable
+  // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
-  const [userLock, setUserLock] = useState(false);
-
-  // TODO: time out if the network call fails
-  // TODO: release the handle and default to not moving if the client disconnects (the server should keep querying back.. this is websockets)
-
-  // const mouseDownHandler = (e: MouseEvent) => {
-  //   console.log("MOUSE DOWN");
-  //   const element = e.currentTarget as HTMLElement;
-  //   const id = element.id;
-  //   (async () => {
-  //     const moving = await queryMoving(id);
-  //     console.log("moving lock? " + moving)
-  //     if(!moving) {
-  //       setDisabled(false);
-  //       // TODO: update the web server with the lock
-  //       console.log("set lock")
-  //     }
-  //   })();
-  // }
   
   const dragStartHandler: DraggableEventHandler = (e, data) => {
-    queryMoving(id).then(locked => {
-      if(locked) {
-        setDisabled(true);
-      }
-    })
     console.log("Drag start");
   }
 
@@ -73,17 +40,15 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
   }
 
   return (
-
       <Draggable
-        // offsetParent={parent}
         onStart={dragStartHandler}
         onStop={dragStopHandler}
         onDrag={dragUpdateHandler}
-        // onMouseDown={mouseDownHandler}
         position={{x, y}}
         disabled={disabled}
         // bounds={{left: 0, top: 0}}
       >
+        {/* Text placeholder. Images and videos would go here. of */}
         <div id={id} style={{top: "0", left: "0", position: "absolute", cursor: "grab"}}>Hello!</div>
       </Draggable>
   )
