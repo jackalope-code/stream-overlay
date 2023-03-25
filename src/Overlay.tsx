@@ -1,15 +1,15 @@
-import { createRef, useEffect } from 'react';
+import { createRef, useEffect, useState } from 'react';
 import Widget from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
-interface WidgetData {
+export interface WidgetData {
   x: number;
   y: number;
   moving: boolean;
   owner?: string;
 }
 
-interface MockData {
+export interface MockData {
   [key: string]: WidgetData;
 }
 
@@ -40,12 +40,13 @@ const mockData: MockData = {
 const socketUrl = "ws://localhost:4000";
 
 const Overlay = () => {
-  const parent = createRef();
+  const [componentData, setComponentData] = useState(mockData);
 
   const { sendMessage, lastMessage, readyState } = useWebSocket<{id: string}>(socketUrl);
 
   useEffect(() => {
     if (lastMessage !== null) {
+      console.log("RECEIVED UPDATE MESSAGE");
       const messageData = lastMessage.data;
       const {id, x, y} = JSON.parse(messageData);
       const movingRef = mockData[id];
@@ -56,14 +57,12 @@ const Overlay = () => {
   
   const generateWidgets = (data: MockData) => {
     const elements = []
-    for(let [id, widgetData] of Object.entries(mockData)) {
-      console.log(id);
+    for(let [id, widgetData] of Object.entries(data)) {
       const {x, y, moving, owner} = widgetData;
       elements.push(
-        <Widget id={id} sendMessage={sendMessage} x={x} y={y} moving={moving} owner={owner}/>
+        <Widget id={id} setComponentData={setComponentData} sendMessage={sendMessage} x={x} y={y} moving={moving} owner={owner}/>
       )
     }
-    console.log(elements);
     return elements;
   }
 
@@ -72,7 +71,7 @@ const Overlay = () => {
       <div style={{width: "100px", height: "100px", backgroundColor: "red"}}>
         test
       </div>
-      {generateWidgets(mockData)}
+      {generateWidgets(componentData)}
     </>
   )
 }

@@ -43,10 +43,9 @@ app.ws('/', function(ws, req: Request<{}>) {
   ws.on('message', function(msg) {
     // TODO: vulnerable (naive) broadcasting
     for(let client of clients) {
-      // TODO: Normally an ok check for client side updates but this is a workaround bc nothing is moved without it rn
-      // if(client !== ws) {
+      if(client !== ws) {
         client.send(msg)
-      // }
+      }
     }
   });
 });

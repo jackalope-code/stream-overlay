@@ -2,6 +2,7 @@ import axios from 'axios';
 import { MouseEventHandler, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { SendMessage } from 'react-use-websocket';
+import { MockData } from './Overlay';
 
 export interface WidgetProps {
   id: string;
@@ -9,6 +10,7 @@ export interface WidgetProps {
   moving: boolean;
   x: number;
   y: number;
+  setComponentData: React.Dispatch<React.SetStateAction<MockData>>;
   sendMessage: SendMessage;
 }
 
@@ -22,7 +24,7 @@ const queryMoving = async (id: string) => {
   return res.data.moving;
 }
 
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setComponentData}) => {
   // const [x, setX] = useState(startX);
   // const [y, setY] = useState(startY);
   const [disabled, setDisabled] = useState(false);
@@ -61,12 +63,13 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage}) => {
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
     sendMessage(JSON.stringify({id: id, x: data.x, y: data.y}))
-    console.log("Drag update");
-    // TODO: NEEDS TO UPDATE LOCALLY AS WELL
-    // setX(data.x);
-    // setY(data.y);
-    console.log(data);
-    console.log(data.node.id);
+    setComponentData((prevState) => {
+      return ({
+        ...prevState,
+        id: {...prevState[id], x, y}
+      })
+    })
+    console.log("Dragging");
   }
 
   return (
