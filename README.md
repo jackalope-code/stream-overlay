@@ -14,8 +14,9 @@ Clone the repo from the command line:
 
 ### Starting the API server for the first time
 From the command line:  
-1. `cd` into the cloned repo server directory (stream-overlay)
-2. `cd server`
+1. `cd` into the cloned repo directory (stream-overlay)
+2. Go into the server directory  
+`cd server`
 3. Install dependencies  
 `npm install`
 4. Start the node server with live reloading on code changes (defaults to http://localhost:4000)  
@@ -56,7 +57,10 @@ Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overl
 - Redis for persistance?
 - Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
 - I think an image/resource approval interface would be cool
+- Bundle for faster deployment
 
+## Troubleshooting
+- If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
 
 ## Environment variables
 TODO
