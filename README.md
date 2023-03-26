@@ -50,10 +50,13 @@ Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overl
 ## Remaining work
 - Image linking. It's easier to require people host their own images and link, but this is insecure if they can change the resource and have the same url.
 - Some form of authorization or authentication
+- Newly connected clients should fetch data from the server to update properly
+- Editing component data from PUT or adding a new component from POST should update locally and broadcast updates to other clients
+- Add a GUI for adding and editing onscreen components
+- Have an editor view and a live overlay view
 - Allow linking videos and ensure they play through without restarting constantly
 - Site hosting
 - Session management
-- Pretend to do UI/UX
 - Redis for persistance?
 - Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
 - I think an image/resource approval interface would be cool
