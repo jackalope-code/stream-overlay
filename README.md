@@ -54,7 +54,12 @@ Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overl
 - Editing component data from PUT or adding a new component from POST should update locally and broadcast updates to other clients
 - Add a GUI for adding and editing onscreen components
 - Have an editor view and a live overlay view
-- Allow linking videos and ensure they play through without restarting constantly
+- Allow linking videos and ensure they play through without restarting constantly  
+Requires time sync updates for live playback control
+- Networked component controls:
+  - Show/hide all
+  - Clear all (confirm and have auth)
+  - Toggle snap/drag movement
 - Site hosting
 - Session management
 - Redis for persistance?
