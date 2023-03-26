@@ -64,3 +64,6 @@ Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overl
 
 ## Environment variables
 TODO
+
+## How to deploy
+TODO
