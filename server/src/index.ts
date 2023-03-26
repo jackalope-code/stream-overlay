@@ -13,7 +13,7 @@ let { app } = wsInstance;
 
 app.use(cors<cors.CorsRequest>(
   {
-    origin: "http://localhost:3000"
+    origin: ["http://localhost:3000"]
   })
 )
 

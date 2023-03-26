@@ -1,6 +1,7 @@
 import {useEffect, useState } from 'react';
 import Widget from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { copyAllWidgetData } from './utils';
 
 export interface WidgetData {
   x: number;
@@ -51,11 +52,11 @@ const Overlay = () => {
   // This hook executes every time the last message from the server changes.
   useEffect(() => {
     if (lastMessage !== null) {
-      console.log("RECEIVED UPDATE MESSAGE");
       const messageData = lastMessage.data;
       const {id, x, y} = JSON.parse(messageData);
-      const movingRef = mockData[id];
-      mockData[id] = {...movingRef, x, y}
+      const objCopy = copyAllWidgetData(componentData);
+      objCopy[id] = Object.assign(objCopy[id], {x, y})
+      setComponentData(objCopy);
     }
   }, [lastMessage]);
   

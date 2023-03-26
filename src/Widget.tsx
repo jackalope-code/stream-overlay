@@ -3,6 +3,7 @@ import { MouseEventHandler, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { SendMessage } from 'react-use-websocket';
 import { MockData } from './Overlay';
+import { copyAllWidgetData } from './utils';
 
 export interface WidgetProps {
   id: string;
@@ -21,22 +22,20 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
   const [disabled, setDisabled] = useState(false);
   
   const dragStartHandler: DraggableEventHandler = (e, data) => {
-    console.log("Drag start");
+    // console.log("Drag start");
   }
 
   const dragStopHandler: DraggableEventHandler = (e, data) => {
-    console.log("Drag stop");
+    // console.log("Drag stop");
   }
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
     sendMessage(JSON.stringify({id: id, x: data.x, y: data.y}))
     setComponentData((prevState) => {
-      return ({
-        ...prevState,
-        id: {...prevState[id], x, y}
-      })
+      const objCopy = copyAllWidgetData(prevState);
+      const newData = Object.assign(objCopy, {[id]: {...objCopy[id], x: data.x, y: data.y}})
+      return newData;
     })
-    console.log("Dragging");
   }
 
   const draggableStyling: React.CSSProperties = {
