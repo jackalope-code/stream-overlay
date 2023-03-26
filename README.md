@@ -46,14 +46,7 @@ The entrypoint for the React App webpage is App.tsx. Right now it just contains 
 
 Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overlay.tsx manages networking and widget data. Widget.tsx sets up event handlers and manages what is displayed for each moveable widget.
 
-
-
-
-## Issues
-Movement is totally bugged right now (this is really bad)
-
 ## Remaining work
-- Movement bugfix
 - Image linking. It's easier to require people host their own images and link, but this is insecure if they can change the resource and have the same url.
 - Some form of authorization or authentication
 - Allow linking videos and ensure they play through without restarting constantly
