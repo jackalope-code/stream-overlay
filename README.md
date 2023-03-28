@@ -61,6 +61,7 @@ Requires time sync updates for live playback control
   - Show/hide all
   - Clear all (confirm and have auth)
   - Toggle snap/drag movement
+  - Snap to grid?
 - Site hosting
 - Session management
 - Redis for persistance?
