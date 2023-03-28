@@ -3,6 +3,12 @@ import Widget from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData } from './utils';
 
+export interface OverlayProps {
+  width: number;
+  height: number;
+  style?: React.CSSProperties;
+}
+
 export interface WidgetData {
   x: number;
   y: number;
@@ -35,7 +41,7 @@ const socketUrl = "ws://localhost:4000";
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = () => {
+const Overlay = ({width, height, style}: OverlayProps) => {
   // Tracks all the draggable networked components in one object
   // Initialized to mockData and should have the same shape
   // https://react.dev/reference/react/useState
@@ -73,12 +79,12 @@ const Overlay = () => {
   }
 
   return (
-    <>
+    <div style={{...style, ...{width: `${width}px`, height: `${height}px`}}}>
       <div style={{width: "100px", height: "100px", backgroundColor: "red"}}>
         Some blocky component that doesn't move
       </div>
       {generateWidgets(componentData)}
-    </>
+    </div>
   )
 }
 
