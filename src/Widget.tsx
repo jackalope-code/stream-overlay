@@ -31,6 +31,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
     sendMessage(JSON.stringify({id: id, x: data.x, y: data.y}))
+    console.log(data.x, data.y);
     setComponentData((prevState) => {
       const objCopy = copyAllWidgetData(prevState);
       const newData = Object.assign(objCopy, {[id]: {...objCopy[id], x: data.x, y: data.y}})
@@ -41,7 +42,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
   const draggableStyling: React.CSSProperties = {
     top: "0",
     left: "0",
-    position: "absolute",
+    position: "relative",
     cursor: "grab",
   };
 
