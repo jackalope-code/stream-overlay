@@ -7,6 +7,8 @@ export interface OverlayProps {
   width: number;
   height: number;
   style?: React.CSSProperties;
+  scale?: number;
+  translateY?: string;
 }
 
 export interface WidgetData {
@@ -41,7 +43,7 @@ const socketUrl = "ws://localhost:4000";
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = ({width, height, style}: OverlayProps) => {
+const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
   // Tracks all the draggable networked components in one object
   // Initialized to mockData and should have the same shape
   // https://react.dev/reference/react/useState
@@ -72,14 +74,28 @@ const Overlay = ({width, height, style}: OverlayProps) => {
     for(let [id, widgetData] of Object.entries(data)) {
       const {x, y, moving, owner} = widgetData;
       elements.push(
-        <Widget id={id} setComponentData={setComponentData} sendMessage={sendMessage} x={x} y={y} moving={moving} owner={owner}/>
+        <Widget
+          id={id}
+          setComponentData={setComponentData}
+          sendMessage={sendMessage}
+          x={x} y={y}
+          moving={moving}
+          scale={scale || 1}
+          owner={owner}/>
       )
     }
     return elements;
   }
 
+  const overlayStyling: React.CSSProperties = {
+    width: `${width}px`,
+    height: `${height}px`,
+    transform: `scale(${scale || 1}) translateY(${translateY || 0})`,
+    transformOrigin: "top",
+    position: "relative",
+  }
   return (
-    <div style={{...style, ...{width: `${width}px`, height: `${height}px`}}}>
+    <div style={{...style, ...overlayStyling}}>
       <div style={{width: "100px", height: "100px", backgroundColor: "red"}}>
         Some blocky component that doesn't move
       </div>

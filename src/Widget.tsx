@@ -11,12 +11,13 @@ export interface WidgetProps {
   moving: boolean;
   x: number;
   y: number;
+  scale?: number;
   setComponentData: React.Dispatch<React.SetStateAction<MockData>>;
   sendMessage: SendMessage;
 }
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setComponentData}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, scale, sendMessage, setComponentData}) => {
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
@@ -61,6 +62,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, sendMessage, setCompone
         onDrag={dragUpdateHandler}
         position={{x, y}}
         disabled={disabled}
+        scale={scale || 1}
         // bounds={{left: 0, top: 0}}
       >
         {/* Text placeholder. Images and videos would go here. of */}
