@@ -1,6 +1,6 @@
 # Realtime Networked Image Overlay
 Uses React to build a webpage and the npm express package for the API, among other npm dependencies.
-## Installation for development
+## Installation for local testing and development
 ### Requirements
 - Requires Node.js https://nodejs.org/en
 - Requires git https://git-scm.com/
@@ -47,14 +47,25 @@ The entrypoint for the React App webpage is App.tsx. Right now it just contains 
 
 Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overlay.tsx manages networking and widget data. Widget.tsx sets up event handlers and manages what is displayed for each moveable widget.
 
+## Issues
+- Long repeating floats when working with differently scaled values
+- Websocket shape is irregular and this could confuse the client
+- Tracking client id seems worse than moving routes into the websocket lifecycle
+- Editor GUI should have an on screen rendering area and an off-screen area 
+- Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
+- GUI sucks
+
 ## Remaining work
-- Image linking. It's easier to require people host their own images and link, but this is insecure if they can change the resource and have the same url.
-- Some form of authorization or authentication
-- Newly connected clients should fetch data from the server to update properly
-- Editing component data from PUT or adding a new component from POST should update locally and broadcast updates to other clients
-- Add a GUI for adding and editing onscreen components
-  - Editor GUI should have an on screen rendering area and an off-screen area 
-- Have an editor view and a live overlay view
+- Integrate ALL API endpoints and realtime WS updates into the client so that everything works
+- Ensure the GUI for adding and editing onscreen components is receiving/broadcasting server changes
+- Add simple password protection
+- Publish
+- Revisit auth with authentication
+- Add persistance
+  - Redis?
+- Add session management
+- Work on security and stability
+- Revisit the GUI
 - Allow linking videos and ensure they play through without restarting constantly  
 Requires time sync updates for live playback control
 - Networked component controls:
@@ -62,12 +73,10 @@ Requires time sync updates for live playback control
   - Clear all (confirm and have auth)
   - Toggle snap/drag movement
   - Snap to grid?
-- Site hosting
-- Session management
-- Redis for persistance?
-- Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
-- I think an image/resource approval interface would be cool
+- Performance logging and revisit site hosting
 - Bundle for faster deployment
+- Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
+- I think an image/resource approval interface would be cool and open up options to engage with more users.
 
 ## Troubleshooting
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
