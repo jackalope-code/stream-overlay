@@ -90,17 +90,26 @@ function broadcastExcludeClient(msg: string, ignoreClient: WebSocket) {
 // Once a websocket connection is established, clients will receive other
 // client updates and broadcast updates made from REST through websockets
 // until the client is disconnected.
+// TODO: Connection limiting?
+// TODO: Update limiting from client?
+// TODO: Just move routes into here? What was I thinking? WS is always used anyways.
 app.ws('/', function(ws, req: Request<{}>) {
   // Assign client ID on connection
   const clientId = randomUUID();
   clients[clientId] = ws;
   // Forward update messages to other connected clients (websocket connection)
+  // Requires these parameters from the client or the client breaks:
+  // x
+  // y
+  // clientId
   ws.on('message', function(msg) {
     console.log("connection opened")
-    // TODO: Validate parameters 
-    const data = JSON.parse(msg.toString());
-    const {x, y} = data;
-    broadcastExcludeClient(JSON.stringify({x, y}), ws);
+    // TODO: Validate parameters
+    const rawData = JSON.parse(msg.toString());
+    const {componentId, x, y} = rawData;
+    const updatedObject = {...components[clientId], x, y}
+    components[clientId] = updatedObject;
+    broadcastExcludeClient(JSON.stringify({componentId, x, y}), ws);
   });
   // Remove tracked client on disconnect
   ws.on('close', function(msg) {
@@ -112,15 +121,15 @@ app.ws('/', function(ws, req: Request<{}>) {
       }
     }
   })
+
+  // Test endpoint
+  app.get("/", (req, res, err) => {
+    res.send("Hello");
+  })
 });
 
 // ==== REST ROUTES ====
 // TODO: Validation and error handling
-
-// Test endpoint
-app.get("/", (req, res, err) => {
-  res.send("Hello");
-})
 
 // Get all components for the session
 app.get("/components", (req, res) => {
