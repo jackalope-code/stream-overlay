@@ -103,7 +103,6 @@ app.ws('/', function(ws, req: Request<{}>) {
   // y
   // clientId
   ws.on('message', function(msg) {
-    console.log("connection opened")
     // TODO: Validate parameters
     const rawData = JSON.parse(msg.toString());
     const {componentId, x, y} = rawData;
