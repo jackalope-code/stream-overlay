@@ -1,6 +1,5 @@
 import WebSocket from 'ws';
-import express from 'express';
-import {Request} from 'express';
+import express, {Request, Response, NextFunction} from 'express';
 import cors from 'cors';
 import expressWs from "express-ws";
 import {randomUUID} from "crypto";
@@ -19,22 +18,35 @@ app.use(cors<cors.CorsRequest>(
 
 // TODO: AUTH LAYER HERE
 
-// TODO: There is one session. Session management is not implemented
+// TODO: There is one session. Session management is not implemented.
 
-interface ComponentCommonParams {
-  width: number;
-  height: number;
+interface ComponentUpdateParams {
+  componentId: string;
+  width?: number;
+  height?: number;
   x?: number;
   y?: number;
 }
-interface ComponentUpdateParams extends ComponentCommonParams {
-  id: number;
-}
-interface ComponentAllParams extends ComponentCommonParams {
+
+interface ComponentParams {
   url: string;
-};
+  width: number;
+  height: number;
+  x: number;
+  y: number
+}
+
+interface ComponentAllParams extends ComponentParams{
+  componentId: string;
+}
+
+interface OverlayDimensions {
+  width: number;
+  height: number;
+}
+
 interface ComponentMap {
-  [key: string]: ComponentAllParams;
+  [key: string]: ComponentParams;
 }
 interface ClientMap {
   [key: string]: WebSocket
@@ -48,27 +60,33 @@ let clients: ClientMap = {};
 // TODO: There is no expectation of persistance
 const components: ComponentMap = {};
 
-function filterID(id: string) {
-
+// Default to 1920x1080 for now
+let overlayDimensions: OverlayDimensions = {
+  width: 1920,
+  height: 1080
+}
+function broadcastAll(msg: string) {
+  for(let client of Object.values(clients)) {
+    client.send(msg)
+  }
 }
 
-function filterWSClient(ws: WebSocket) {
-
-}
-
-function broadcast(msg: string, ignoreClient?: WebSocket) {
-  if(ignoreClient !== undefined) {
-    for(let client of Object.values(clients)) {
-      if(client !== ignoreClient) {
-        client.send(msg)
-      }
+function broadcastExcludeId(msg: string, ignoreId: string) {
+  for(let id of Object.keys(clients)) {
+    if(id !== ignoreId) {
+      clients[id].send(msg)
     }
-  } else {
-    for(let client of Object.values(clients)) {
+  }
+}
+
+function broadcastExcludeClient(msg: string, ignoreClient: WebSocket) {
+  for(let client of Object.values(clients)) {
+    if(client !== ignoreClient) {
       client.send(msg)
     }
   }
 }
+
 // Once a websocket connection is established, clients will receive other
 // client updates and broadcast updates made from REST through websockets
 // until the client is disconnected.
@@ -82,7 +100,7 @@ app.ws('/', function(ws, req: Request<{}>) {
     // TODO: Validate parameters 
     const data = JSON.parse(msg.toString());
     const {x, y} = data;
-    broadcast(JSON.stringify({x, y}), ws);
+    broadcastExcludeClient(JSON.stringify({x, y}), ws);
   });
   // Remove tracked client on disconnect
   ws.on('close', function(msg) {
@@ -96,53 +114,91 @@ app.ws('/', function(ws, req: Request<{}>) {
   })
 });
 
-// UNTESTED REST ROUTES NOT IMPLEMENTED BY THE CLIENT YET
-// TODO: NONE OF THESE ARE BROADCASTING UPDATES AKA THEYRE BROKEN FOR NOW
-//    The client would get confused by receiving its own broadcast events and
-//    there's no ws variable scope here to filter that client out
-//    AAAUUUUUUUUGGGHH
+// ==== REST ROUTES ====
+// TODO: Validation and error handling
 
-// TODO: implement a generated client id for each ws client session and use this for tracking
+// Test endpoint
+app.get("/", (req, res, err) => {
+  res.send("Hello");
+})
 
 // Get all components for the session
 app.get("/components", (req, res) => {
-  res.status(200).send(JSON.stringify(Object.entries(components));
+  const allComponents: ComponentAllParams[] = Object.entries(components).reduce(
+    (res, [key, componentData]) => {
+      res.push(Object.assign({componentId: key}, componentData));
+      return res;
+  }, [] as ComponentAllParams[])
+  res.status(200).send(JSON.stringify(allComponents));
+});
+
+// Get overlay dimensions
+app.get("/overlay", (req, res, err) => {
+  res.send(overlayDimensions)
+})
+
+// Express middleware.
+// Following routes require a client ID generated from the server on
+// a new websocket connection. It is expected that the client holds
+// onto its ID and sends it with REST POST/PUT update messages.
+app.use((req: Request, res: any, next: any, err: any) => {
+  const {clientId} = req.params;
+  res.locals = {clientId};
+  console.log("set client id " + clientId + " to locals.")
+  next();
 });
 
 // Add a new component
-app.post("/component/:url/:width/:height/:x?/:y?", (req: Request<ComponentAllParams>, res) => {
-  const id = randomUUID();
+app.post("/component/:url/:width/:height/:x/:y", (req: Request<ComponentParams>, res) => {
+  const componentId = randomUUID();
   const {url, width, height, x, y} = req.params;
-  components[id] = {url, width, height, x, y};
-  res.send(200);
+  const data = {componentId, url, width, height, x, y};
+  components[componentId] = data;
+  console.log("local sanity check", res.locals);
+  broadcastExcludeId(JSON.stringify(data), res.locals.clientId)
+  res.send(data);
 });
 
 // Edit component fields except for url
-app.put("/component/:id/:width?/:height?/:x?/:y?", (req: Request<ComponentUpdateParams>, res) => {
-  const {id, width, height, x, y} = req.params;
-  if(id in components) {
+app.put("/component/:componentId/:width?/:height?/:x?/:y?", (req: Request<ComponentUpdateParams>, res) => {
+  const {componentId, width, height, x, y} = req.params;
+  if(componentId in components) {
+    // Extract and rename fields from existing object
     const {
       width: componentWidth,
       height: componentHeight,
       x: componentX,
       y: componentY
-    } = components[id];
-    components[id].width = width || componentWidth;
-    components[id].height = height || componentHeight;
-    components[id].x = x || componentX;
-    components[id].y = y || componentY;
+    } = components[componentId];
+    // Create transformed data structure from PUT updates
+    const data: ComponentAllParams = {
+      componentId,
+      url: components[componentId].url, // Should not be editable once created
+      width: width || componentWidth,
+      height: height || componentHeight,
+      x: x || componentX,
+      y: y || componentY
+    }
+    // Update server component
+    components[componentId] = data;
+    // Send network updates
+    broadcastExcludeId(JSON.stringify(data), res.locals.clientId);
+    res.send(data);
   }
 });
 
 // Resize overlay
+// Lower bound is 100x100
+// TODO: Upper bounds
+// TODO: Implement sessions after storage
 app.put("/overlay/:width/:height", (req: Request<{width: number, height: number}>, res) => {
   const {width, height} = req.params;
-
-})
-
-// Test endpoint
-app.get("/", (req, res, err) => {
-  res.send("Hello");
+  if(width <= 100 || height <= 100) {
+    res.status(400).send("Minimum overlay size is 100x100");
+  }
+  overlayDimensions = {width, height};
+  broadcastExcludeId(JSON.stringify(overlayDimensions), res.locals.clientId)
+  res.sendStatus(200);
 })
 
 app.listen(SERVER_PORT, () => {
