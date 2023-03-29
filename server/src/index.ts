@@ -21,12 +21,6 @@ app.use(cors<cors.CorsRequest>(
 
 // TODO: There is one session. Session management is not implemented
 
-// Track all connected websocket clients
-// TODO: Limits?
-const clients: WebSocket[] = [];
-
-// Track all networked components
-// TODO: There is no expectation of persistance
 interface ComponentCommonParams {
   width: number;
   height: number;
@@ -42,28 +36,64 @@ interface ComponentAllParams extends ComponentCommonParams {
 interface ComponentMap {
   [key: string]: ComponentAllParams;
 }
+interface ClientMap {
+  [key: string]: WebSocket
+}
+
+// Track all connected websocket clients
+// TODO: Limits?
+let clients: ClientMap = {};
+
+// Track all networked components
+// TODO: There is no expectation of persistance
 const components: ComponentMap = {};
 
-function broadcast(msg: WebSocket.RawData, ignoreClient?: WebSocket) {
+function filterID(id: string) {
+
+}
+
+function filterWSClient(ws: WebSocket) {
+
+}
+
+function broadcast(msg: string, ignoreClient?: WebSocket) {
   if(ignoreClient !== undefined) {
-    for(let client of clients) {
+    for(let client of Object.values(clients)) {
       if(client !== ignoreClient) {
         client.send(msg)
       }
     }
   } else {
-    for(let client of clients) {
+    for(let client of Object.values(clients)) {
       client.send(msg)
     }
   }
 }
-// Forward update messages to other connected clients (websocket connection)
+// Once a websocket connection is established, clients will receive other
+// client updates and broadcast updates made from REST through websockets
+// until the client is disconnected.
 app.ws('/', function(ws, req: Request<{}>) {
-  clients.push(ws);
+  // Assign client ID on connection
+  const clientId = randomUUID();
+  clients[clientId] = ws;
+  // Forward update messages to other connected clients (websocket connection)
   ws.on('message', function(msg) {
-    // TODO: vulnerable (naive) re-broadcasting
-    broadcast(msg, ws);
+    console.log("connection opened")
+    // TODO: Validate parameters 
+    const data = JSON.parse(msg.toString());
+    const {x, y} = data;
+    broadcast(JSON.stringify({x, y}), ws);
   });
+  // Remove tracked client on disconnect
+  ws.on('close', function(msg) {
+    for(let id of Object.keys(clients)) {
+      if(clients[id] === ws) {
+        delete clients[id];
+        console.log("remove", id);
+        break;
+      }
+    }
+  })
 });
 
 // UNTESTED REST ROUTES NOT IMPLEMENTED BY THE CLIENT YET
@@ -72,9 +102,11 @@ app.ws('/', function(ws, req: Request<{}>) {
 //    there's no ws variable scope here to filter that client out
 //    AAAUUUUUUUUGGGHH
 
+// TODO: implement a generated client id for each ws client session and use this for tracking
+
 // Get all components for the session
 app.get("/components", (req, res) => {
-  res.status(200).send(JSON.stringify(Object.entries(components)));
+  res.status(200).send(JSON.stringify(Object.entries(components));
 });
 
 // Add a new component
@@ -101,6 +133,12 @@ app.put("/component/:id/:width?/:height?/:x?/:y?", (req: Request<ComponentUpdate
     components[id].y = y || componentY;
   }
 });
+
+// Resize overlay
+app.put("/overlay/:width/:height", (req: Request<{width: number, height: number}>, res) => {
+  const {width, height} = req.params;
+
+})
 
 // Test endpoint
 app.get("/", (req, res, err) => {
