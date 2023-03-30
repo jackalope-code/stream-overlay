@@ -41,6 +41,9 @@ const mockData: MockData = {
 
 const socketUrl = "ws://localhost:4000";
 
+// TODO: Should be controlled so the editor can access component data properties
+// and uncontrolled so that the overlay view can update itself
+
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
 const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
@@ -61,9 +64,10 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
   useEffect(() => {
     if (lastMessage !== null) {
       const messageData = lastMessage.data;
-      const {id, x, y} = JSON.parse(messageData);
+      console.log("MESSAGE DATA", messageData)
+      const {componentId, x, y} = JSON.parse(messageData);
       const objCopy = copyAllWidgetData(componentData);
-      objCopy[id] = Object.assign(objCopy[id], {x, y})
+      objCopy[componentId] = Object.assign(objCopy[componentId], {x, y})
       setComponentData(objCopy);
     }
   }, [lastMessage]);
