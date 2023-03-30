@@ -6,6 +6,7 @@ export default function OverlayEditPage() {
   const [overlayWidth, setOverlayWidth] = useState(1920);
   const [overlayHeight, setOverlayHeight] = useState(1080);
   const [editorScale, setEditorScale] = useState(0.5);
+  const [editorTranslateY, setEditorTranslateY] = useState("10%");
   
   function handleOverlayFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -13,16 +14,26 @@ export default function OverlayEditPage() {
     const formElements = form.elements as typeof form.elements & {
       overlayWidth: {value: number},
       overlayHeight: {value: number},
-      editorScale: {value: number}
     }
     const width = formElements['overlayWidth'].value
     const height = formElements['overlayHeight'].value
-    const scale = formElements['editorScale'].value;
 
     setOverlayWidth(width);
     setOverlayHeight(height);
-    console.log(scale);
+
+  }
+
+  function handleEditorFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formElements = form.elements as typeof form.elements & {
+      editorScale: {value: number},
+      editorTranslateY: {value: number}
+    }
+    const scale = formElements['editorScale'].value;
+    const translateYValue = formElements['editorTranslateY'].value;
     setEditorScale(scale);
+    setEditorTranslateY(`${translateYValue}%`);
   }
   
   // TODO: no space under the overlay or around the sides when it's larger 
@@ -41,17 +52,27 @@ export default function OverlayEditPage() {
               Height
               <input type="number" name="overlayHeight" defaultValue={overlayHeight}/>
             </label>
-            <label>
-              Editor scale (changes your editor view but not the overlay view page)
-              <input type="number" name="editorScale" step="0.1" min="0.1" max={3} defaultValue={0.5}/>
-            </label>
             <input type="submit" value="Update"/>
           </fieldset>
         </label>
       </form>
+      <form onSubmit={handleEditorFormSubmit}>
+        <fieldset>
+          <legend>Editor properties</legend>
+          <label>
+            Scale
+            <input type="number" name="editorScale" step="0.1" min="0.1" max={3} defaultValue={editorScale}/>
+          </label>
+          <label>
+            Offset from top (%)
+            <input type="number" name="editorTranslateY" step="5" min={0} max={100} defaultValue={10}/>
+          </label>
+          <input type="submit" value="Update"/>
+        </fieldset>
+      </form>
       <WidgetFieldForm />
       <div style={{display: "flex", justifyContent: "center"}}>
-        <Overlay width={overlayWidth} height={overlayHeight} scale={editorScale} translateY={"25%"} style={{border: "solid red 1px"}}/>
+        <Overlay width={overlayWidth} height={overlayHeight} scale={editorScale} translateY={editorTranslateY} style={{border: "solid red 1px"}}/>
       </div>
     </>
   )
