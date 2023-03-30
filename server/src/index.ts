@@ -16,6 +16,8 @@ app.use(cors<cors.CorsRequest>(
   })
 )
 
+app.use(express.json());
+
 // TODO: AUTH LAYER HERE
 
 // TODO: There is one session. Session management is not implemented.
