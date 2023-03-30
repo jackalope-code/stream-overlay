@@ -122,15 +122,15 @@ app.ws('/', function(ws, req: Request<{}>) {
       }
     }
   })
-
-  // Test endpoint
-  app.get("/", (req, res, err) => {
-    res.send("Hello");
-  })
 });
 
 // ==== REST ROUTES ====
 // TODO: Validation and error handling
+
+// Test endpoint
+app.get("/", (req, res, err) => {
+  res.send("Hello");
+})
 
 // Get all components for the session
 app.get("/components", (req, res) => {
@@ -151,27 +151,29 @@ app.get("/overlay", (req, res, err) => {
 // Following routes require a client ID generated from the server on
 // a new websocket connection. It is expected that the client holds
 // onto its ID and sends it with REST POST/PUT update messages.
-app.use((req: Request, res: any, next: any, err: any) => {
-  const {clientId} = req.params;
-  res.locals = {clientId};
-  console.log("set client id " + clientId + " to locals.")
+app.use((req: Request, res: any, next: any) => {
+  const {clientId} = req.body;
+  if(!clientId) {
+    throw new Error("Missing clientId from request body.");
+  }
+  res.locals.clientId = clientId;
   next();
 });
 
 // Add a new component
-app.post("/component/:url/:width/:height/:x/:y", (req: Request<ComponentParams>, res) => {
+app.post("/component", (req, res) => {
   const componentId = randomUUID();
-  const {url, width, height, x, y} = req.params;
+  const {url, width, height, x, y} = req.body;
   const data = {componentId, url, width, height, x, y};
   components[componentId] = data;
-  console.log("local sanity check", res.locals);
-  broadcastExcludeId(JSON.stringify(data), res.locals.clientId)
+  broadcastExcludeId(JSON.stringify(data), res.locals.clientId);
   res.send(data);
 });
 
 // Edit component fields except for url
-app.put("/component/:componentId/:width?/:height?/:x?/:y?", (req: Request<ComponentUpdateParams>, res) => {
-  const {componentId, width, height, x, y} = req.params;
+app.put("/component/:componentId", (req, res) => {
+  const {componentId} = req.params;
+  const {width, height, x, y} = req.body;
   if(componentId in components) {
     // Extract and rename fields from existing object
     const {
@@ -201,8 +203,8 @@ app.put("/component/:componentId/:width?/:height?/:x?/:y?", (req: Request<Compon
 // Lower bound is 100x100
 // TODO: Upper bounds
 // TODO: Implement sessions after storage
-app.put("/overlay/:width/:height", (req: Request<{width: number, height: number}>, res) => {
-  const {width, height} = req.params;
+app.put("/overlay", (req: Request<{width: number, height: number}>, res) => {
+  const {width, height} = req.body;
   if(width <= 100 || height <= 100) {
     res.status(400).send("Minimum overlay size is 100x100");
   }
@@ -210,6 +212,12 @@ app.put("/overlay/:width/:height", (req: Request<{width: number, height: number}
   broadcastExcludeId(JSON.stringify(overlayDimensions), res.locals.clientId)
   res.sendStatus(200);
 })
+
+// Error handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  const status = err.status || 400;
+  res.status(status).send(err.message);
+});
 
 app.listen(SERVER_PORT, () => {
   console.log(`Express server listening on port ${SERVER_PORT}`);
