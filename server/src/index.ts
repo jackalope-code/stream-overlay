@@ -67,24 +67,62 @@ let overlayDimensions: OverlayDimensions = {
   width: 1920,
   height: 1080
 }
-function broadcastAll(msg: string) {
+
+interface WSComponentUpdateMessage { 
+  type: 'update';
+  componentId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface WSConnectMessage {
+  type: 'connect';
+  clientId: string;
+}
+
+interface WSComponentAddMessage {
+  type: 'add';
+  componentId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  url: string;
+}
+
+interface WSOverlayUpdateMessage {
+  type: 'overlay';
+  width: number;
+  height: number;
+}
+
+type BroadcastMessage =
+  WSConnectMessage |
+  WSComponentAddMessage |
+  WSComponentUpdateMessage |
+  WSOverlayUpdateMessage;
+
+
+function broadcastAll(msg: BroadcastMessage) {
   for(let client of Object.values(clients)) {
-    client.send(msg)
+    client.send(JSON.stringify(msg));
   }
 }
 
-function broadcastExcludeId(msg: string, ignoreId: string) {
+function broadcastExcludeId(msg: BroadcastMessage, ignoreId: string) {
   for(let id of Object.keys(clients)) {
     if(id !== ignoreId) {
-      clients[id].send(msg)
+      clients[id].send(JSON.stringify(msg));
     }
   }
 }
 
-function broadcastExcludeClient(msg: string, ignoreClient: WebSocket) {
+function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) {
   for(let client of Object.values(clients)) {
     if(client !== ignoreClient) {
-      client.send(msg)
+      client.send(JSON.stringify(msg));
     }
   }
 }
@@ -99,18 +137,24 @@ app.ws('/', function(ws, req: Request<{}>) {
   // Assign client ID on connection
   const clientId = randomUUID();
   clients[clientId] = ws;
+  ws.send(JSON.stringify({type: 'connect', clientId}));
   // Forward update messages to other connected clients (websocket connection)
   // Requires these parameters from the client or the client breaks:
+  // type:  event
   // x
   // y
-  // clientId
+  // componentId
+  // On connect:
+  // type: connect
+  // clientId: number
+  // TODO: Type security on WS message shape
   ws.on('message', function(msg) {
     // TODO: Validate parameters
     const rawData = JSON.parse(msg.toString());
-    const {componentId, x, y} = rawData;
-    const updatedObject = {...components[clientId], x, y}
-    components[clientId] = updatedObject;
-    broadcastExcludeClient(JSON.stringify({componentId, x, y}), ws);
+    const {componentId, x, y, width, height} = rawData;
+    const updatedObject = {...components[componentId], x, y, width, height}
+    components[componentId] = updatedObject;
+    broadcastExcludeClient({...updatedObject, componentId, type: 'update'}, ws);
   });
   // Remove tracked client on disconnect
   ws.on('close', function(msg) {
@@ -139,7 +183,7 @@ app.get("/components", (req, res) => {
       res.push(Object.assign({componentId: key}, componentData));
       return res;
   }, [] as ComponentAllParams[])
-  res.status(200).send(JSON.stringify(allComponents));
+  res.status(200).json(allComponents);
 });
 
 // Get overlay dimensions
@@ -161,12 +205,14 @@ app.use((req: Request, res: any, next: any) => {
 });
 
 // Add a new component
+// TODO: Validation and number truncation w/ POST and PUT.
+//       This accepts strings rn and should not.
 app.post("/component", (req, res) => {
   const componentId = randomUUID();
   const {url, width, height, x, y} = req.body;
   const data = {componentId, url, width, height, x, y};
   components[componentId] = data;
-  broadcastExcludeId(JSON.stringify(data), res.locals.clientId);
+  broadcastExcludeId({...data, type: 'add'}, res.locals.clientId);
   res.send(data);
 });
 
@@ -194,22 +240,24 @@ app.put("/component/:componentId", (req, res) => {
     // Update server component
     components[componentId] = data;
     // Send network updates
-    broadcastExcludeId(JSON.stringify(data), res.locals.clientId);
+    broadcastExcludeId({...data, type: 'update'}, res.locals.clientId);
     res.send(data);
   }
 });
 
 // Resize overlay
 // Lower bound is 100x100
-// TODO: Upper bounds
+// TODO: Upper bounds (on screen and off screen)
 // TODO: Implement sessions after storage
 app.put("/overlay", (req: Request<{width: number, height: number}>, res) => {
   const {width, height} = req.body;
   if(width <= 100 || height <= 100) {
-    res.status(400).send("Minimum overlay size is 100x100");
+    throw new Error("Minimum overlay size is 100x100");
   }
+  // Update what the server stores
   overlayDimensions = {width, height};
-  broadcastExcludeId(JSON.stringify(overlayDimensions), res.locals.clientId)
+  // Network updates
+  broadcastExcludeId({...overlayDimensions, type: 'overlay'}, res.locals.clientId)
   res.sendStatus(200);
 })
 
