@@ -11,13 +11,16 @@ export interface WidgetProps {
   moving: boolean;
   x: number;
   y: number;
+  width: number;
+  height: number;
+  imageUrl: string;
   scale?: number;
   setComponentData: React.Dispatch<React.SetStateAction<MockData>>;
   sendMessage: SendMessage;
 }
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, scale, sendMessage, setComponentData}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl, scale, sendMessage, setComponentData}) => {
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
@@ -31,7 +34,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, scale, sendMessage, set
   }
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
-    sendMessage(JSON.stringify({componentId: id, x: data.x, y: data.y}))
+    sendMessage(JSON.stringify({componentId: id, x: data.x, y: data.y, width, height}))
     console.log(data.x, data.y);
     setComponentData((prevState) => {
       const objCopy = copyAllWidgetData(prevState);
@@ -48,8 +51,8 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, scale, sendMessage, set
   };
 
   const otherStyling: React.CSSProperties = {
-    width: "50px",
-    height: "50px",
+    width: `${width}px`,
+    height: `${height}px`,
     backgroundColor: "green",
   }
 
@@ -66,7 +69,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, scale, sendMessage, set
         // bounds={{left: 0, top: 0}}
       >
         {/* Text placeholder. Images and videos would go here. of */}
-        <div id={id} style={combinedStyling}>Drag me!</div>
+        <img id={id} style={combinedStyling} />
       </Draggable>
   )
 }
