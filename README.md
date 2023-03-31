@@ -51,6 +51,8 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
+- Offsets are not working properly
+- Very strange issues with mock data on endpoint POST followed by editor refresh... ignoring it for now... only mock data is getting duplicated
 - Background is not transparent
 - No persistance on API restart
 - GUI sucks
@@ -73,6 +75,7 @@ https://react.dev/reference/react
 - Revisit auth with authentication
 - Add session management
 - Optimize network changes (use binary for WS and evaluate API architecture)
+  - Don't stream so much unnecessary data.. try something delta based?
 - Allow linking videos and ensure they play through without restarting constantly  
 Requires time sync updates for live playback control
 - Networked component controls:
