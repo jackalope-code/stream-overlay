@@ -4,12 +4,17 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData } from './utils';
 import axios, { AxiosResponse } from 'axios';
 
-export interface OverlayProps {
+export interface Dimensions {
   width: number;
   height: number;
+}
+
+export interface OverlayProps {
+  dimensions: Dimensions;
   style?: React.CSSProperties;
   scale?: number;
   translateY?: string;
+  setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
 }
 
 export interface WidgetData {
@@ -49,15 +54,20 @@ const mockData: MockData = {
   }
 }
 
-const socketUrl = "ws://localhost:4000";
-const routeUrl = "http://localhost:4000";
+const socketUrl = process.env.REACT_APP_DEV_WS_URL as string;
+const routeUrl = process.env.REACT_APP_DEV_REST_URL as string;
+
+if(!socketUrl || !routeUrl) {
+  throw new Error("Could not locate environment variables. \
+  Requires REACT_APP_DEV_WS_URL and REACT_APP_DEV_ROUTE_URL to be set.")
+}
 
 // TODO: Should be controlled so the editor can access component data properties
 // and uncontrolled so that the overlay view can update itself
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
+const Overlay = ({dimensions, setDimensions, style, scale, translateY}: OverlayProps) => {
   // Tracks all the draggable networked components in one object
   // Initialized to mockData and should have the same shape
   // https://react.dev/reference/react/useState
@@ -90,6 +100,9 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
         const objCopy = copyAllWidgetData(componentData);
         objCopy[componentId] = {x, y, width, height, url, moving: false};
         setComponentData(objCopy);
+      } else if(messageData.type === 'overlay') {
+        const {width, height} = messageData;
+        setDimensions({width, height});
       }
     }
   }, [lastMessage]);
@@ -129,8 +142,8 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
   }
 
   const overlayStyling: React.CSSProperties = {
-    width: `${width}px`,
-    height: `${height}px`,
+    width: `${dimensions.width}px`,
+    height: `${dimensions.height}px`,
     transform: `scale(${scale || 1}) translateY(${translateY || 0})`,
     transformOrigin: "top",
     position: "relative",

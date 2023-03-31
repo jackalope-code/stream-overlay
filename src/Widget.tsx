@@ -69,7 +69,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
       >
         {/* Text placeholder. Images and videos would go here. of */}
         <div id={id} style={combinedStyling}>
-          <img src={imageUrl} draggable={false}/>
+          <img src={imageUrl} draggable={false} style={{maxWidth: "100%", maxHeight: "100%"}}/>
         </div>
       </Draggable>
   )
