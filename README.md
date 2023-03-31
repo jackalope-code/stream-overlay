@@ -51,7 +51,9 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
-- Offsets are not working properly
+- No way to delete anything
+- Images not resized properly
+- Offsets are not working properly?
 - Very strange issues with mock data on endpoint POST followed by editor refresh... ignoring it for now... only mock data is getting duplicated
 - Background is not transparent
 - No persistance on API restart
@@ -65,6 +67,8 @@ https://react.dev/reference/react
 
 ## Remaining work
 - Integrate ALL API endpoints and realtime WS updates into the client so that everything works
+  - Missing overlay updates
+  - Forms are not working
 - Ensure the GUI for adding and editing onscreen components is receiving/broadcasting server changes
 - Add simple password protection
 - IMPORTANT add a delete component endpoint
