@@ -191,6 +191,26 @@ app.get("/overlay", (req, res, err) => {
   res.send(overlayDimensions)
 })
 
+// Resize overlay
+// Lower bound is 100x100
+// TODO: Upper bounds (on screen and off screen)
+// TODO: Implement sessions after storage
+app.put("/overlay", (req: Request<{width: number, height: number}>, res) => {
+  const {width, height} = req.body;
+  if(width <= 100 || height <= 100) {
+    throw new Error("Minimum overlay size is 100x100");
+  }
+  // TODO: why is this received as a string? Converting this is annoying
+  const numericWidth = parseInt(width);
+  const numericHeight = parseInt(height);
+  // Update what the server stores
+  overlayDimensions = {width: numericWidth, height: numericHeight};
+  console.log(overlayDimensions)
+  // Network updates
+  broadcastAll({...overlayDimensions, type: 'overlay'});
+  res.sendStatus(200);
+})
+
 // Express middleware.
 // Following routes require a client ID generated from the server on
 // a new websocket connection. It is expected that the client holds
@@ -244,22 +264,6 @@ app.put("/component/:componentId", (req, res) => {
     res.send(data);
   }
 });
-
-// Resize overlay
-// Lower bound is 100x100
-// TODO: Upper bounds (on screen and off screen)
-// TODO: Implement sessions after storage
-app.put("/overlay", (req: Request<{width: number, height: number}>, res) => {
-  const {width, height} = req.body;
-  if(width <= 100 || height <= 100) {
-    throw new Error("Minimum overlay size is 100x100");
-  }
-  // Update what the server stores
-  overlayDimensions = {width, height};
-  // Network updates
-  broadcastExcludeId({...overlayDimensions, type: 'overlay'}, res.locals.clientId)
-  res.sendStatus(200);
-})
 
 // Error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
