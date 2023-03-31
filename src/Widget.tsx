@@ -34,6 +34,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
   }
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
+    console.log("x", data.x, "y", data.y)
     setComponentData((prevState) => {
       const objCopy = copyAllWidgetData(prevState);
       const newData = Object.assign(objCopy, {[id]: {...objCopy[id], x: data.x, y: data.y}})
@@ -45,7 +46,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
   const draggableStyling: React.CSSProperties = {
     top: "0",
     left: "0",
-    position: "relative",
+    position: "absolute",
     cursor: "grab",
   };
 
