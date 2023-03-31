@@ -47,25 +47,31 @@ The entrypoint for the React App webpage is App.tsx. Right now it just contains 
 
 Overlay.tsx and Widget.tsx are the two primary components for the overlay. Overlay.tsx manages networking and widget data. Widget.tsx sets up event handlers and manages what is displayed for each moveable widget.
 
+Reference for useEffect, useState, and other React hooks
+https://react.dev/reference/react
+
 ## Issues
+- Background is not transparent
+- No persistance on API restart
+- GUI sucks
+- There's no lock on dragging so there may be unexpected behavior with multiple users dragging
 - Long repeating floats when working with differently scaled values
 - Websocket shape is irregular and this could confuse the client
-- Tracking client id seems worse than moving routes into the websocket lifecycle
-- Editor GUI should have an on screen rendering area and an off-screen area 
+- Editor GUI should have better asset management and more control over offscreen margins (this should be a server feature to some limit as well with persistance)
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
-- GUI sucks
 
 ## Remaining work
 - Integrate ALL API endpoints and realtime WS updates into the client so that everything works
 - Ensure the GUI for adding and editing onscreen components is receiving/broadcasting server changes
 - Add simple password protection
 - Publish
-- Revisit auth with authentication
+- Revisit the GUI
+- Work on security and stability
 - Add persistance
   - Redis?
+- Revisit auth with authentication
 - Add session management
-- Work on security and stability
-- Revisit the GUI
+- Optimize network changes (use binary for WS and evaluate API architecture)
 - Allow linking videos and ensure they play through without restarting constantly  
 Requires time sync updates for live playback control
 - Networked component controls:
@@ -77,6 +83,10 @@ Requires time sync updates for live playback control
 - Bundle for faster deployment
 - Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
 - I think an image/resource approval interface would be cool and open up options to engage with more users.
+- Stretch features
+  - Drawing?
+  - Drag to resize?
+  - More advanced image editing?
 
 ## Troubleshooting
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
