@@ -2,6 +2,7 @@ import {useEffect, useState } from 'react';
 import Widget from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData } from './utils';
+import axios, { AxiosResponse } from 'axios';
 
 export interface OverlayProps {
   width: number;
@@ -12,8 +13,11 @@ export interface OverlayProps {
 }
 
 export interface WidgetData {
+  url: string;
   x: number;
   y: number;
+  width: number;
+  height: number;
   moving: boolean;
   owner?: string;
 }
@@ -25,21 +29,28 @@ export interface MockData {
 const mockData: MockData = {
   "1": {
     // id: "1",
+    url: "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
     owner: undefined,
     moving: false,
     x: 100,
     y: 100,
+    width: 100,
+    height: 50
   },
   "2": {
     // id: "2",
+    url: "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
     owner: undefined,
     moving: false,
     x: 200,
     y: 200,
+    width: 75,
+    height: 75
   }
 }
 
 const socketUrl = "ws://localhost:4000";
+const routeUrl = "http://localhost:4000";
 
 // TODO: Should be controlled so the editor can access component data properties
 // and uncontrolled so that the overlay view can update itself
@@ -52,37 +63,57 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
   // https://react.dev/reference/react/useState
   const [componentData, setComponentData] = useState(mockData);
 
+  const [clientId, setClientId] = useState();
+
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
   // lastMessage: Last message update from the server
   const { sendMessage, lastMessage, readyState } = useWebSocket<{id: string}>(socketUrl);
 
-  // useEffect Hooks run called when the component first loads and when any variables that it watches change.
-  // The first parameter is a function that performs changes
-  // The second parameter is a dependency array that watches for changes to the provided variables
-  // This hook executes every time the last message from the server changes.
+  // Message handling
   useEffect(() => {
     if (lastMessage !== null) {
-      const messageData = lastMessage.data;
+      const messageData = JSON.parse(lastMessage.data);
       console.log("MESSAGE DATA", messageData)
-      const {componentId, x, y} = JSON.parse(messageData);
-      const objCopy = copyAllWidgetData(componentData);
-      objCopy[componentId] = Object.assign(objCopy[componentId], {x, y})
-      setComponentData(objCopy);
+      if(messageData.type === 'connect') {
+        const {clientId} = messageData;
+        console.log("set clientId")
+        setClientId(clientId);
+      } else if(messageData.type === 'update') {
+        const {componentId, x, y} = JSON.parse(messageData);
+        const objCopy = copyAllWidgetData(componentData);
+        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y})
+        setComponentData(objCopy);
+      }
     }
   }, [lastMessage]);
+
+  // Execute when component loads
+  useEffect(() => {
+    (async () => {
+      if(clientId !== undefined) {
+        console.log("making async request")
+        const res = await axios.get(`${routeUrl}/components`);
+        console.log("async data");
+        console.log(res.data);
+        setComponentData(res.data);
+      }
+    })();
+  }, [clientId])
   
   // Creates the array of Widget elements that the Overlay will render from provided component data
   const generateWidgets = (data: MockData) => {
     const elements = []
     for(let [id, widgetData] of Object.entries(data)) {
-      const {x, y, moving, owner} = widgetData;
+      const {x, y, width, height, moving, owner, url} = widgetData;
       elements.push(
         <Widget
           id={id}
           setComponentData={setComponentData}
           sendMessage={sendMessage}
           x={x} y={y}
+          width={width} height={height}
+          imageUrl={url}
           moving={moving}
           scale={scale || 1}
           owner={owner}/>
