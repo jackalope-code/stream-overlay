@@ -67,6 +67,7 @@ https://react.dev/reference/react
 - Integrate ALL API endpoints and realtime WS updates into the client so that everything works
 - Ensure the GUI for adding and editing onscreen components is receiving/broadcasting server changes
 - Add simple password protection
+- IMPORTANT add a delete component endpoint
 - Publish
 - Revisit the GUI
 - Work on security and stability
