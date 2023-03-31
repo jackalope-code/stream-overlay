@@ -61,7 +61,7 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
   // Tracks all the draggable networked components in one object
   // Initialized to mockData and should have the same shape
   // https://react.dev/reference/react/useState
-  const [componentData, setComponentData] = useState(mockData);
+  const [componentData, setComponentData] = useState<MockData>({});
 
   const [clientId, setClientId] = useState();
 
@@ -72,6 +72,7 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
 
   // Message handling
   useEffect(() => {
+    // Message shape should match WSMessage types from the server
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
       console.log("MESSAGE DATA", messageData)
@@ -80,9 +81,14 @@ const Overlay = ({width, height, style, scale, translateY}: OverlayProps) => {
         console.log("set clientId")
         setClientId(clientId);
       } else if(messageData.type === 'update') {
-        const {componentId, x, y} = JSON.parse(messageData);
+        const {componentId, x, y} = messageData;
         const objCopy = copyAllWidgetData(componentData);
         objCopy[componentId] = Object.assign(objCopy[componentId], {x, y})
+        setComponentData(objCopy);
+      } else if(messageData.type === 'add') {
+        const {componentId, x, y, width, height, url} = messageData;
+        const objCopy = copyAllWidgetData(componentData);
+        objCopy[componentId] = {x, y, width, height, url, moving: false};
         setComponentData(objCopy);
       }
     }
