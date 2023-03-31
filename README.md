@@ -56,7 +56,8 @@ https://react.dev/reference/react
 - GUI sucks
 - There's no lock on dragging so there may be unexpected behavior with multiple users dragging
 - Long repeating floats when working with differently scaled values
-- Websocket shape is irregular and this could confuse the client
+- Initial x, y may be weird?
+- Websocket shape is not clearly defined or typed
 - Editor GUI should have better asset management and more control over offscreen margins (this should be a server feature to some limit as well with persistance)
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
