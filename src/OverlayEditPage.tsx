@@ -43,7 +43,7 @@ export default function OverlayEditPage() {
       <form onSubmit={handleOverlayFormSubmit}>
         <label>
           <fieldset>
-            <legend>Overlay properties</legend>
+            <legend>Overlay properties - WARNING! THIS CHANGES THE STREAM VIEW!</legend>
             <label>
               Width
               <input type="number" name="overlayWidth" defaultValue={overlayWidth}/>
@@ -58,7 +58,7 @@ export default function OverlayEditPage() {
       </form>
       <form onSubmit={handleEditorFormSubmit}>
         <fieldset>
-          <legend>Editor properties</legend>
+          <legend>Editor properties - Change your editor view without changing what others see</legend>
           <label>
             Scale
             <input type="number" name="editorScale" step="0.1" min="0.1" max={3} defaultValue={editorScale}/>
