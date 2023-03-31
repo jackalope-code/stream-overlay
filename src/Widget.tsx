@@ -34,13 +34,12 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
   }
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
-    sendMessage(JSON.stringify({componentId: id, x: data.x, y: data.y, width, height}))
-    console.log(data.x, data.y);
     setComponentData((prevState) => {
       const objCopy = copyAllWidgetData(prevState);
       const newData = Object.assign(objCopy, {[id]: {...objCopy[id], x: data.x, y: data.y}})
       return newData;
     })
+    sendMessage(JSON.stringify({componentId: id, x: data.x, y: data.y, width, height}))
   }
 
   const draggableStyling: React.CSSProperties = {
@@ -69,7 +68,9 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
         // bounds={{left: 0, top: 0}}
       >
         {/* Text placeholder. Images and videos would go here. of */}
-        <img id={id} style={combinedStyling} />
+        <div id={id} style={combinedStyling}>
+          <img src={imageUrl} draggable={false}/>
+        </div>
       </Draggable>
   )
 }
