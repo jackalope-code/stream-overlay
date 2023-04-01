@@ -2,7 +2,7 @@ import axios from 'axios';
 import { MouseEventHandler, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { SendMessage } from 'react-use-websocket';
-import { MockData } from './Overlay';
+import { WidgetDataMap } from './Overlay';
 import { copyAllWidgetData } from './utils';
 
 export interface WidgetProps {
@@ -15,7 +15,7 @@ export interface WidgetProps {
   height: number;
   imageUrl: string;
   scale?: number;
-  setComponentData: React.Dispatch<React.SetStateAction<MockData>>;
+  setComponentData: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   sendMessage: SendMessage;
 }
 
@@ -34,7 +34,6 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
   }
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
-    console.log("x", data.x, "y", data.y)
     setComponentData((prevState) => {
       const objCopy = copyAllWidgetData(prevState);
       const newData = Object.assign(objCopy, {[id]: {...objCopy[id], x: data.x, y: data.y}})

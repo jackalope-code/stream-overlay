@@ -15,6 +15,10 @@ export interface OverlayProps {
   scale?: number;
   translateY?: string;
   setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
+  widgetDataMap: WidgetDataMap;
+  setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
+  clientId: string | undefined;
+  setClientId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export interface WidgetData {
@@ -27,11 +31,11 @@ export interface WidgetData {
   owner?: string;
 }
 
-export interface MockData {
+export interface WidgetDataMap {
   [key: string]: WidgetData;
 }
 
-const mockData: MockData = {
+const mockData: WidgetDataMap = {
   "1": {
     // id: "1",
     url: "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
@@ -67,13 +71,7 @@ if(!socketUrl || !routeUrl) {
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = ({dimensions, setDimensions, style, scale, translateY}: OverlayProps) => {
-  // Tracks all the draggable networked components in one object
-  // Initialized to mockData and should have the same shape
-  // https://react.dev/reference/react/useState
-  const [componentData, setComponentData] = useState<MockData>({});
-
-  const [clientId, setClientId] = useState();
+const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, setClientId, style, scale, translateY}: OverlayProps) => {
 
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
@@ -92,14 +90,14 @@ const Overlay = ({dimensions, setDimensions, style, scale, translateY}: OverlayP
         setClientId(clientId);
       } else if(messageData.type === 'update') {
         const {componentId, x, y} = messageData;
-        const objCopy = copyAllWidgetData(componentData);
+        const objCopy = copyAllWidgetData(widgetDataMap);
         objCopy[componentId] = Object.assign(objCopy[componentId], {x, y})
-        setComponentData(objCopy);
+        setWidgetDataMap(objCopy);
       } else if(messageData.type === 'add') {
         const {componentId, x, y, width, height, url} = messageData;
-        const objCopy = copyAllWidgetData(componentData);
+        const objCopy = copyAllWidgetData(widgetDataMap);
         objCopy[componentId] = {x, y, width, height, url, moving: false};
-        setComponentData(objCopy);
+        setWidgetDataMap(objCopy);
       } else if(messageData.type === 'overlay') {
         const {width, height} = messageData;
         setDimensions({width, height});
@@ -115,20 +113,20 @@ const Overlay = ({dimensions, setDimensions, style, scale, translateY}: OverlayP
         const res = await axios.get(`${routeUrl}/components`);
         console.log("async data");
         console.log(res.data);
-        setComponentData(res.data);
+        setWidgetDataMap(res.data);
       }
     })();
   }, [clientId])
   
   // Creates the array of Widget elements that the Overlay will render from provided component data
-  const generateWidgets = (data: MockData) => {
+  const generateWidgets = (data: WidgetDataMap) => {
     const elements = []
     for(let [id, widgetData] of Object.entries(data)) {
       const {x, y, width, height, moving, owner, url} = widgetData;
       elements.push(
         <Widget
           id={id}
-          setComponentData={setComponentData}
+          setComponentData={setWidgetDataMap}
           sendMessage={sendMessage}
           x={x} y={y}
           width={width} height={height}
@@ -153,7 +151,7 @@ const Overlay = ({dimensions, setDimensions, style, scale, translateY}: OverlayP
       <div style={{width: "100px", height: "100px", backgroundColor: "red"}}>
         Some blocky component that doesn't move
       </div>
-      {generateWidgets(componentData)}
+      {generateWidgets(widgetDataMap)}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
-import Overlay from "./Overlay";
+import Overlay, { WidgetDataMap } from "./Overlay";
 import WidgetFieldForm from "./WidgetFieldForm";
 
 const routeUrl = process.env.REACT_APP_DEV_REST_URL as string;
@@ -10,12 +10,18 @@ if(!routeUrl) {
 }
 
 export default function OverlayEditPage() {
-  // TODO: IMPORTANT SET FROM OVERLAY REQUEST AND PREVENT NEW CLIENTS OVERRIDING
-  const [overlayDimensions, setOverlayDimensions] = useState({width: 1920, height: 1080});
-  const [formDimensionData, setFormDimensionData] = useState<{width: number, height: number}>(overlayDimensions);
   const [editorScale, setEditorScale] = useState(0.5);
   const [editorTranslateY, setEditorTranslateY] = useState("10%");
   
+  // TODO: lifted state
+  // Tracks all the draggable networked components in one object
+  const [widgetDataMap, setWidgetDataMap] = useState<WidgetDataMap>({});
+  const [clientId, setClientId] = useState<string | undefined>();
+  
+  // TODO: IMPORTANT SET FROM OVERLAY REQUEST AND PREVENT NEW CLIENTS OVERRIDING
+  const [overlayDimensions, setOverlayDimensions] = useState({width: 1920, height: 1080});
+  const [formDimensionData, setFormDimensionData] = useState<{width: number, height: number}>(overlayDimensions);
+
   // TODO: Form networked update hack
   useEffect(() => {
     setFormDimensionData(overlayDimensions);
@@ -109,9 +115,18 @@ export default function OverlayEditPage() {
           <input type="submit" value="Update"/>
         </fieldset>
       </form>
-      <WidgetFieldForm />
+      <WidgetFieldForm setWidgetDataMap={setWidgetDataMap} widgetDataMap={widgetDataMap} clientId={clientId} />
       <div style={{display: "flex", justifyContent: "center"}}>
-        <Overlay dimensions={overlayDimensions} setDimensions={setOverlayDimensions} scale={editorScale} translateY={editorTranslateY} style={{border: "solid red 1px"}}/>
+        <Overlay
+          dimensions={overlayDimensions}
+          widgetDataMap={widgetDataMap}
+          setWidgetDataMap={setWidgetDataMap}
+          setDimensions={setOverlayDimensions}
+          scale={editorScale} translateY={editorTranslateY}
+          style={{border: "solid red 1px"}}
+          setClientId={setClientId}
+          clientId={clientId}
+        />
       </div>
     </>
   )
