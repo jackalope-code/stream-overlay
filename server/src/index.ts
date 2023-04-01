@@ -15,7 +15,7 @@ const clientUrl = env().clientUrl;
 
 app.use(cors<cors.CorsRequest>(
   {
-    origin: [clientUrl]
+    origin: ["http://localhost:3000", "http://frontend:3000"]
   })
 )
 

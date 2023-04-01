@@ -13,14 +13,12 @@ export function env() {
   if(buildType === 'dev') {
     socketUrl = process.env.REACT_APP_DEV_WS_URL;
     routeUrl = process.env.REACT_APP_DEV_REST_URL;
-    clientUrl = process.env.REACT_APP_LOCAL_CLIENT_URL;
   // } else if(buildType === 'prod') {
   //   socketUrl = process.env.REACT_APP_WS_URL;
   //   routeUrl = process.env.REACT_APP_REST_URL;
   } else if(buildType === 'docker') {
     routeUrl = 'http://api:4000'
     socketUrl = 'ws://api:4000';
-    clientUrl = 'http://frontend:3000'
   }
   
   if(!socketUrl || !routeUrl || !clientUrl) {
