@@ -3,15 +3,12 @@ import express, {Request, Response, NextFunction} from 'express';
 import cors from 'cors';
 import expressWs from "express-ws";
 import {randomUUID} from "crypto";
-import {env} from "../../src/utils";
 
 const SERVER_PORT = "4000";
 
 let appBase = express();
 let wsInstance = expressWs(appBase);
 let { app } = wsInstance;
-
-const clientUrl = env().clientUrl;
 
 app.use(cors<cors.CorsRequest>(
   {
