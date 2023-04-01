@@ -115,7 +115,9 @@ Requires time sync updates for live playback control
 - REACT_APP_DEV_REST_URL - defaults to http://localhost:4000
 - REACT_APP_DEV_WS_URL - defaults to ws://localhost:4000  
 
+NOTE:
 Do not add a trailing slash.
+API server port must be 4000 unless EXPOSE is modified in the server Dockerfile.
 
 ## How to deploy
 TODO
