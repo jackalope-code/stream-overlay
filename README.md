@@ -52,7 +52,7 @@ https://react.dev/reference/react
 
 ## Issues
 - URGENT: No way to delete anything.
-- Strange issues with the editor on refresh (is this still happening?)  
+- Strange issues with the editor on refresh and component changes (is this still happening?)  
     Something is getting duplicated and not sent back with urls.
 - No persistance on API restart.
 - GUI sucks.
@@ -68,13 +68,21 @@ https://react.dev/reference/react
 - IMPORTANT add a delete component endpoint
 - Add property update form integration
 - Add simple password protection
-- Publish
+- Remove log statements
+- Add confirm dialogue for overlay resize
+- CHECKPOINT: Publish and branch
 - Work on testing, security and stability
+  - Validators
+  - Tests
+  - Error messages
 - Revisit the GUI
 - Add persistance
   - Redis?
+- Add session management capabilities, even if not used yet
+- Look into what would be persisted with auth
+- Merge, republish, and branch here? Aim for backwards compatibility so future updates are more seamless. Future updates to support could include video link and syncing, WS transport changes, SESSIONS, TWITCH AUTH, UI changes, component VISIBILITY CHANGES, networked clear all, grid snapping behavior, etc. Store and persist what is needed.
 - Revisit auth with authentication
-- Add session management
+- Revisit UI state management
 - Optimize network changes (use binary for WS and evaluate API architecture)
   - Don't stream so much unnecessary data.. try something delta based?
 - Allow linking videos and ensure they play through without restarting constantly  
