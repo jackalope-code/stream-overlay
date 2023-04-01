@@ -64,13 +64,13 @@ https://react.dev/reference/react
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
 ## Remaining work
-- Bundle for faster deployment
 - IMPORTANT add a delete component endpoint
 - Add property update form integration
 - Add simple password protection
 - Remove log statements
 - Add confirm dialogue for overlay resize
 - Truncate numbers on the server side
+- Build and serve site with NGINX, GitHub Pages, Gatsby, Netlify, etc. Pick one.
 - CHECKPOINT: Publish and branch
 - Work on testing, security and stability
   - UI and server side validators, secure typing
