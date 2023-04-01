@@ -1,0 +1,17 @@
+# TODO: use env vars for:
+# ports and routes
+# local dev or remote build
+services:
+  api:
+    build: ./server
+    #container_name: "stream-overlay-api"
+    expose:
+     - "4000"
+  frontend:
+    build: .
+    #container_name: "stream-overlay-react-client"
+    # TODO: for live server
+    ports:
+    - 3000:3000
+    depends_on:
+      - api

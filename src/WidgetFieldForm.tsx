@@ -14,6 +14,9 @@ interface WidgetFormProps {
   widgetDataMap: WidgetDataMap;
   clientId: string | undefined;
 }
+
+const routeUrl = env().routeUrl;
+
 export default function WidgetFieldForm({setWidgetDataMap, widgetDataMap, clientId}: WidgetFormProps)  {
   // const formStyling: React.CSSProperties = {
   //   "form input"
@@ -42,7 +45,7 @@ export default function WidgetFieldForm({setWidgetDataMap, widgetDataMap, client
       alert("Error connecting to server");
     } else {
       (async () => {
-        const res = await axios.post(`${env().routeUrl}/component`, {
+        const res = await axios.post(`${routeUrl}/component`, {
           ...newWidget,
           clientId
         })

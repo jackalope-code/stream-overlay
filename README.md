@@ -70,6 +70,7 @@ https://react.dev/reference/react
 - Remove log statements
 - Add confirm dialogue for overlay resize
 - Truncate numbers on the server side
+- Fix docker environment variables
 - Build and serve site with NGINX, GitHub Pages, Gatsby, Netlify, etc. Pick one.
 - CHECKPOINT: Publish and branch
 - Work on testing, security and stability
@@ -111,9 +112,14 @@ Requires time sync updates for live playback control
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
 
 ## Environment variables
+This should get consolidated somewhat later.
 .env.development.local (published) - Local env vars used in the React app
 - REACT_APP_DEV_REST_URL - defaults to http://localhost:4000
-- REACT_APP_DEV_WS_URL - defaults to ws://localhost:4000  
+- REACT_APP_DEV_WS_URL - defaults to ws://localhost:4000
+.env - MUST BE ADDED
+- REACT_APP_BUILD_FLAG - set to prod or dev
+- REACT_APP_REST_URL set to api server url
+- REACT_APP_WS_URL must match
 
 NOTE:
 Do not add a trailing slash.

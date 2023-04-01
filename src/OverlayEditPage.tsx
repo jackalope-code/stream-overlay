@@ -1,13 +1,10 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
 import Overlay, { WidgetDataMap } from "./Overlay";
+import { env } from "./utils";
 import WidgetFieldForm from "./WidgetFieldForm";
 
-const routeUrl = process.env.REACT_APP_DEV_REST_URL as string;
-if(!routeUrl) {
-  throw new Error("Could not locate environment variables. \
-  Requires REACT_APP_DEV_WS_URL and REACT_APP_DEV_ROUTE_URL to be set.")
-}
+const routeUrl = env().routeUrl;
 
 export default function OverlayEditPage() {
   const [editorScale, setEditorScale] = useState(0.5);

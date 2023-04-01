@@ -1,7 +1,7 @@
 import {useEffect, useState } from 'react';
 import Widget from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { copyAllWidgetData } from './utils';
+import { copyAllWidgetData, env } from './utils';
 import axios, { AxiosResponse } from 'axios';
 
 export interface Dimensions {
@@ -58,13 +58,8 @@ const mockData: WidgetDataMap = {
   }
 }
 
-const socketUrl = process.env.REACT_APP_DEV_WS_URL as string;
-const routeUrl = process.env.REACT_APP_DEV_REST_URL as string;
-
-if(!socketUrl || !routeUrl) {
-  throw new Error("Could not locate environment variables. \
-  Requires REACT_APP_DEV_WS_URL and REACT_APP_DEV_ROUTE_URL to be set.")
-}
+const socketUrl = env().socketUrl;
+const routeUrl = env().routeUrl;
 
 // TODO: Should be controlled so the editor can access component data properties
 // and uncontrolled so that the overlay view can update itself
