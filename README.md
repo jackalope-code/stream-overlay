@@ -73,9 +73,15 @@ https://react.dev/reference/react
 - Truncate numbers on the server side
 - CHECKPOINT: Publish and branch
 - Work on testing, security and stability
-  - UI and server side validators
+  - UI and server side validators, secure typing
+    - Forms
+    - Endpoints
+    - WS messages
   - Tests
   - Error messages
+    - Connection errors
+    - Invalid input errors
+    - Missing input errors
 - Revisit the GUI
 - Add persistance
   - Redis?
