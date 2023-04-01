@@ -51,30 +51,26 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
-- No way to delete anything
-- Images not sizing and positioning in the div properly?
-- Offsets are not working properly?
-- Very strange issues with the editor on refresh
-    Something is getting duplicated and not sent back with urls
-- Background is not transparent
-- No persistance on API restart
-- GUI sucks
-- There's no lock on dragging so there may be unexpected behavior with multiple users dragging
-- Long repeating floats when working with differently scaled values
-- Websocket shape is not clearly defined or typed
+- URGENT: No way to delete anything.
+- Strange issues with the editor on refresh (is this still happening?)  
+    Something is getting duplicated and not sent back with urls.
+- No persistance on API restart.
+- GUI sucks.
+- There's no lock on dragging so there may be unexpected behavior with multiple users dragging.
+- URGENT: Long repeating floats when working with differently scaled values.
+- Websocket shape is not clearly defined or typed.
+- Websocket update messages are long and usually don't update much at once.
 - Editor GUI should have better asset management and more control over offscreen margins (this should be a server feature to some limit as well with persistance)
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
 ## Remaining work
-- Integrate ALL API endpoints and realtime WS updates into the client so that everything works
-  - Missing overlay updates
-  - Forms are not working
-- Ensure the GUI for adding and editing onscreen components is receiving/broadcasting server changes
-- Add simple password protection
+- Bundle for faster deployment
 - IMPORTANT add a delete component endpoint
+- Add property update form integration
+- Add simple password protection
 - Publish
+- Work on testing, security and stability
 - Revisit the GUI
-- Work on security and stability
 - Add persistance
   - Redis?
 - Revisit auth with authentication
@@ -89,7 +85,6 @@ Requires time sync updates for live playback control
   - Toggle snap/drag movement
   - Snap to grid?
 - Performance logging and revisit site hosting
-- Bundle for faster deployment
 - Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
 - I think an image/resource approval interface would be cool and open up options to engage with more users.
 - Stretch features
@@ -101,7 +96,11 @@ Requires time sync updates for live playback control
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
 
 ## Environment variables
-TODO
+.env.development.local (published) - Local env vars used in the React app
+- REACT_APP_DEV_REST_URL - defaults to http://localhost:4000
+- REACT_APP_DEV_WS_URL - defaults to ws://localhost:4000  
+
+Do not add a trailing slash.
 
 ## How to deploy
 TODO
