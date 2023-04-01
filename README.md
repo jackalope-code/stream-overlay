@@ -70,9 +70,10 @@ https://react.dev/reference/react
 - Add simple password protection
 - Remove log statements
 - Add confirm dialogue for overlay resize
+- Truncate numbers on the server side
 - CHECKPOINT: Publish and branch
 - Work on testing, security and stability
-  - Validators
+  - UI and server side validators
   - Tests
   - Error messages
 - Revisit the GUI
