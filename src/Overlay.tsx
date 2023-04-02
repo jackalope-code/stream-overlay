@@ -78,7 +78,7 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
     // Message shape should match WSMessage types from the server
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
-      console.log("MESSAGE DATA", messageData)
+      // console.log("MESSAGE DATA", messageData)
       if(messageData.type === 'connect') {
         const {clientId} = messageData;
         console.log("set clientId")
