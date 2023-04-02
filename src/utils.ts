@@ -1,10 +1,10 @@
 import { WidgetDataMap } from "./Overlay";
 
 export function env() {
-  const buildType = process.env.REACT_APP_BUILD_FLAG;
-  if(buildType === undefined) {
-    throw new Error("Set REACT_APP_BUILD_FLAG to either dev or prod build.");
-  }
+  // const buildType = process.env.REACT_APP_BUILD_FLAG;
+  // if(buildType === undefined) {
+  //   throw new Error("Set REACT_APP_BUILD_FLAG to either dev or prod build.");
+  // }
 
   let socketUrl = "ws://localhost:4000";
   let routeUrl = "http://localhost:4000";
@@ -25,7 +25,7 @@ export function env() {
   //   throw new Error("Could not locate environment variables. \
   //   Requires REACT_APP_DEV_WS_URL, REACT_APP_LOCAL_CLIENT_URL, and REACT_APP_DEV_ROUTE_URL to be set.")
   // }
-  // return {socketUrl, routeUrl}
+  return {socketUrl, routeUrl}
 }
 
 // Used to update state with a new object to trigger re-rendering
