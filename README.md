@@ -52,6 +52,7 @@ https://react.dev/reference/react
 
 ## Issues
 - URGENT: No way to delete anything.
+- Hosting and env vars all over the place
 - Strange issues with the editor on refresh and component changes (is this still happening?)  
     Something is getting duplicated and not sent back with urls.
 - No persistance on API restart.
@@ -111,7 +112,7 @@ Requires time sync updates for live playback control
 ## Troubleshooting
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
 
-## Environment variables
+## Environment variables (UNSTABLE)
 This should get consolidated somewhat later.
 .env.development.local (published) - Local env vars used in the React app
 - REACT_APP_DEV_REST_URL - defaults to http://localhost:4000
