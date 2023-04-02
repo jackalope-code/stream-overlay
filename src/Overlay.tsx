@@ -143,9 +143,6 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   }
   return (
     <div style={{...style, ...overlayStyling}}>
-      <div style={{width: "100px", height: "100px", backgroundColor: "red"}}>
-        Some blocky component that doesn't move
-      </div>
       {generateWidgets(widgetDataMap)}
     </div>
   )
