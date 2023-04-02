@@ -3,6 +3,9 @@ import express, {Request, Response, NextFunction} from 'express';
 import cors from 'cors';
 import expressWs from "express-ws";
 import {randomUUID} from "crypto";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const SERVER_PORT = "4000";
 
@@ -10,9 +13,13 @@ let appBase = express();
 let wsInstance = expressWs(appBase);
 let { app } = wsInstance;
 
+if(!process.env.CLIENT_URL) {
+  throw new Error("Could not locate CLIENT_URL env var for CORS.");
+}
+
 app.use(cors<cors.CorsRequest>(
   {
-    origin: ["http://localhost:3000", "http://frontend:3000"]
+    origin: ["http://localhost:3000", "http://frontend:3000", process.env.CLIENT_URL]
   })
 )
 
