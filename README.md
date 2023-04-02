@@ -52,6 +52,7 @@ https://react.dev/reference/react
 
 ## Issues
 - URGENT: No way to delete anything.
+- Fields aren't connected to update components once added... there is no component tracking or updating
 - Hosting and env vars all over the place
 - Strange issues with the editor on refresh and component changes (is this still happening?)  
     Something is getting duplicated and not sent back with urls.
