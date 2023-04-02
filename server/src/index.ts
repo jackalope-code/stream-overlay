@@ -17,9 +17,14 @@ if(!process.env.CLIENT_URL) {
   throw new Error("Could not locate CLIENT_URL env var for CORS.");
 }
 
+app.use(function setCommonHeaders(req, res, next) {
+  res.set("Access-Control-Allow-Private-Network", "true");
+  next();
+});
+
 app.use(cors<cors.CorsRequest>(
   {
-    origin: ["http://localhost:3000", "http://frontend:3000", process.env.CLIENT_URL]
+    origin: ["http://localhost:3000", "http://frontend:3000", process.env.CLIENT_URL],
   })
 )
 
