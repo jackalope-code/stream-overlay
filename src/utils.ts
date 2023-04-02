@@ -6,8 +6,8 @@ export function env() {
   //   throw new Error("Set REACT_APP_BUILD_FLAG to either dev or prod build.");
   // }
 
-  let socketUrl = "ws://localhost:4000";
-  let routeUrl = "http://localhost:4000";
+  let socketUrl = process.env.REACT_APP_WS_ENDPOINT;
+  let routeUrl = process.env.REACT_APP_REST_ENDPOINT;
   // let clientUrl;
 
   // if(buildType === 'dev') {
