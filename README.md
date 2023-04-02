@@ -114,13 +114,16 @@ Requires time sync updates for live playback control
 
 ## Environment variables (UNSTABLE)
 This should get consolidated somewhat later.
-.env.development.local (published) - Local env vars used in the React app
+<!-- .env.development.local (published) - Local env vars used in the React app
 - REACT_APP_DEV_REST_URL - defaults to http://localhost:4000
 - REACT_APP_DEV_WS_URL - defaults to ws://localhost:4000
 .env - MUST BE ADDED
 - REACT_APP_BUILD_FLAG - set to prod or dev
 - REACT_APP_REST_URL set to api server url
-- REACT_APP_WS_URL must match
+- REACT_APP_WS_URL must match -->
+Set .env file in project root directory
+REACT_APP_WS_ENDPOINT=ws://(server url here)
+REACT_APP_REST_ENDPOINT=http://(server url here)
 
 NOTE:
 Do not add a trailing slash.
