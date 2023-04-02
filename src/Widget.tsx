@@ -52,7 +52,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
   const otherStyling: React.CSSProperties = {
     width: `${width}px`,
     height: `${height}px`,
-    backgroundColor: "green",
+    background: 'rgba(0, 0, 0, 0)',
   }
 
   const combinedStyling = {...draggableStyling, ...otherStyling};
