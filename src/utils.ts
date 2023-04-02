@@ -8,6 +8,10 @@ export function env() {
 
   let socketUrl = process.env.REACT_APP_WS_ENDPOINT;
   let routeUrl = process.env.REACT_APP_REST_ENDPOINT;
+
+  if(!socketUrl || !routeUrl) {
+    throw new Error("Could not find env vars. REACT_APP_WS_ENDPOINT and REACT_APP_REST_ENDPOINT must be defined.")
+  }
   // let clientUrl;
 
   // if(buildType === 'dev') {
