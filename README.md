@@ -59,6 +59,7 @@ https://react.dev/reference/react
 - GUI sucks.
 - There's no lock on dragging so there may be unexpected behavior with multiple users dragging.
 - URGENT: Long repeating floats when working with differently scaled values.
+- Doesn't upsize images... only downsizes
 - Websocket shape is not clearly defined or typed.
 - Websocket update messages are long and usually don't update much at once.
 - Editor GUI should have better asset management and more control over offscreen margins (this should be a server feature to some limit as well with persistance)
