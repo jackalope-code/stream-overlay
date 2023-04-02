@@ -124,8 +124,9 @@ This should get consolidated somewhat later.
 Set .env file in project root directory
 REACT_APP_WS_ENDPOINT=ws://(server url here)
 REACT_APP_REST_ENDPOINT=http://(server url here)
+Do not use trailing slashes.
 
-NOTE:
+NOTES:
 Do not add a trailing slash.
 API server port must be 4000 unless EXPOSE is modified in the server Dockerfile.
 
