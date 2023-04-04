@@ -67,15 +67,21 @@ https://react.dev/reference/react
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
 ## Remaining work
-- IMPORTANT add a delete component endpoint
-- Add property update form integration
-- Add simple password protection
-- Remove log statements
-- Add confirm dialogue for overlay resize
-- Truncate numbers on the server side
-- Fix docker environment variables
-- Build and serve site with NGINX, GitHub Pages, Gatsby, Netlify, etc. Pick one.
+1. Add property update form integration w/ state
+2. IMPORTANT add a delete component endpoint and handling
+3. Add and integrate simple password protection
+4. Find a good approach for always on deployment
+5. Various fixes
+  - Add confirm dialogue for overlay resize
+  - Truncate numbers on the server side
+  - Set up env vars that work for now for build/dev and revisit later
+  - Remove log statements
 - CHECKPOINT: Publish and branch
+- Revisit build process
+  - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
+  - Fix docker environment variables
+  - Have better flags for automatic builds
+  - Add deployment instructions to README
 - Work on testing, security and stability
   - UI and server side validators, secure typing
     - Forms
@@ -89,14 +95,15 @@ https://react.dev/reference/react
 - Revisit the GUI
 - Add persistance
   - Redis?
-- Add session management capabilities, even if not used yet
-- Look into what would be persisted with auth
+- Add session management capabilities if supporting multiple clients from one host.
+- Text and text editing
 - Merge, republish, and branch here? Aim for backwards compatibility so future updates are more seamless. Future updates to support could include video link and syncing, WS transport changes, SESSIONS, TWITCH AUTH, UI changes, component VISIBILITY CHANGES, networked clear all, grid snapping behavior, etc. Store and persist what is needed.
+- Allow linking videos and ensure they play through without restarting constantly 
+- Expanded property editing
 - Revisit auth with authentication
 - Revisit UI state management
 - Optimize network changes (use binary for WS and evaluate API architecture)
   - Don't stream so much unnecessary data.. try something delta based?
-- Allow linking videos and ensure they play through without restarting constantly  
 Requires time sync updates for live playback control
 - Networked component controls:
   - Show/hide all
@@ -110,6 +117,7 @@ Requires time sync updates for live playback control
   - Drawing?
   - Drag to resize?
   - More advanced image editing?
+- Other embeds?
 
 ## Troubleshooting
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
