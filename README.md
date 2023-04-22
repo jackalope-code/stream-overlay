@@ -69,16 +69,18 @@ https://react.dev/reference/react
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
 ## Remaining work
-1. Add property update form integration w/ state
-2. IMPORTANT add a delete component endpoint and handling
-3. Add and integrate simple password protection
-4. Find a good approach for always on deployment
-5. Various fixes
+1. Add a delete endpoint and integration w/ a form button
+2. Add and integrate simple password protection
+3. Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
+4. Various fixes
   - Add confirm dialogue for overlay resize
   - Truncate numbers on the server side
   - Set up env vars that work for now for build/dev and revisit later
+  - Sanity checks on API/client communication (look for ghost ID bug)
+  - Validation and testing on forms and endpoints, w/ proper error handling
   - Remove log statements
-- CHECKPOINT: Publish and branch
+5. Support videos
+- CHECKPOINT: Publish, merge, and branch
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
   - Fix docker environment variables
