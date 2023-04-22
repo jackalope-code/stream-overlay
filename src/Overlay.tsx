@@ -101,12 +101,33 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
       })();
     }
   }
-  return [{clientId, widgetDataMap}, {addWidget: addNewAndBlindUpdate, updateWidget: updateWidgetBlind}];
+
+  function deleteWidgetBlind(widgetId: string, clientId: string) {
+    deleteWidgetLocal(widgetId);
+    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`) })();
+  }
+
+  function deleteWidgetLocal(widgetId: string) {
+    setWidgetDataMap(data => {
+      const mapCopy = {...copyAllWidgetData(data)};
+      delete mapCopy[widgetId];
+      return mapCopy;
+    });
+  }
+
+  return [{clientId, widgetDataMap}, {
+    addWidget: addNewAndBlindUpdate,
+    updateWidget: updateWidgetBlind,
+    deleteWidgetLocal: deleteWidgetLocal,
+    deleteWidget: deleteWidgetBlind,
+  }];
 }
 
 export interface UseOverlayHelpers {
   addWidget: (widgetData: WidgetData, clientId: string) => void;
   updateWidget: (widgetData: WidgetData, widgetId: string, clientId: string) => void;
+  deleteWidget: (widgetId: string, clientId: string) => void;
+  deleteWidgetLocal: (widgetId: string) => void;
 }
 
 export interface UseOverlayState {
@@ -179,6 +200,10 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
         const {componentId, x, y, width, height, url} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
         objCopy[componentId] = {x, y, width, height, url, moving: false};
+        setWidgetDataMap(objCopy);
+      } else if(messageData.type === 'delete') {
+        const objCopy = copyAllWidgetData(widgetDataMap);
+        delete objCopy[messageData.componentId];
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'overlay') {
         const {width, height} = messageData;

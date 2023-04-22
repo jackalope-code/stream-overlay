@@ -89,6 +89,8 @@ export default function OverlayEditPage() {
       }
       helpers.addWidget(widget, clientId);
     }
+    console.log("RESET " + formikHelpers.resetForm)
+    formikHelpers.resetForm();
     formikHelpers.setSubmitting(false);
   }
   
@@ -133,7 +135,12 @@ export default function OverlayEditPage() {
         </fieldset>
       </form>
       {/* TODO: FIX PROP DRILLING */}
-      <WidgetPropertyForms widgetDataMap={widgetDataMap} updateWidget={helpers.updateWidget as UseOverlayHelpers["updateWidget"]} clientId={clientId}/>
+      <WidgetPropertyForms
+        widgetDataMap={widgetDataMap}
+        updateWidget={helpers.updateWidget as UseOverlayHelpers["updateWidget"]}
+        deleteWidget={helpers.deleteWidget as UseOverlayHelpers["deleteWidget"]}
+        clientId={clientId}
+      />
       <WidgetFieldForm handleFormSubmit={handleAddWidgetFieldForm} buttonType="add"/>
       <div style={{display: "flex", justifyContent: "center"}}>
         <Overlay

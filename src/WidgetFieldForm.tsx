@@ -101,17 +101,26 @@ export default function WidgetFieldForm({handleFormSubmit, data, buttonType}: Wi
     initialValues = {
       xInput: data.x,
       yInput: data.y,
-      urlInput: data.url || "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
+      urlInput: data.url,
       widthInput: data.width,
       heightInput: data.height
     }
   }
 
-  function renderButton(buttonType: ButtonType) {
+  function deleteClickHandler() {
+    alert("delete");
+  }
+
+  function renderButtons(buttonType: ButtonType) {
     if(buttonType === 'add') {
       return <input type="submit" value="Add"/>
     } else if(buttonType === 'update') {
-      return <input type="submit" value="Update"/>
+      return (
+        <>
+          <input type="button" value="Delete" onClick={deleteClickHandler}/>
+          <input type="submit" value="Update"/>
+        </>
+      )
     }
   }
   
@@ -148,7 +157,7 @@ export default function WidgetFieldForm({handleFormSubmit, data, buttonType}: Wi
           Visible:
           <input type="toggle" name="visible" />
         </label>
-        {renderButton(buttonType)}
+        {renderButtons(buttonType)}
       </Form>
     </Formik>
   )

@@ -104,16 +104,23 @@ interface WSComponentAddMessage {
   url: string;
 }
 
+interface WSComponentDeleteMessage {
+  type: 'delete';
+  componentId: string;
+}
+
 interface WSOverlayUpdateMessage {
   type: 'overlay';
   width: number;
   height: number;
 }
 
+
 type BroadcastMessage =
   WSConnectMessage |
   WSComponentAddMessage |
   WSComponentUpdateMessage |
+  WSComponentDeleteMessage |
   WSOverlayUpdateMessage;
 
 
@@ -274,6 +281,19 @@ app.put("/component/:componentId", (req, res) => {
     // Send network updates
     broadcastExcludeId({...data, type: 'update'}, res.locals.clientId);
     res.send(data);
+  }
+});
+
+
+// Delete component by ID
+app.delete("/component/:componentId", (req, res) => {
+  const {componentId} = req.params;
+  if(componentId in components) {
+    // Update server component
+    delete components[componentId];
+    // Send network updates
+    broadcastExcludeId({componentId, type: 'delete'}, res.locals.clientId);
+    res.sendStatus(200);
   }
 });
 

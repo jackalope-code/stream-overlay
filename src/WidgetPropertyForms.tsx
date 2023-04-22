@@ -1,11 +1,12 @@
 import { SetStateAction } from "react";
-import { WidgetData, WidgetDataMap } from "./Overlay";
+import { WidgetData, WidgetDataMap, UseOverlayHelpers } from "./Overlay";
 import WidgetFieldForm, { FormValues } from "./WidgetFieldForm";
 import { FormikHelpers, FormikValues } from "formik";
 
 interface WidgetPropertyFormProps {
   widgetDataMap: WidgetDataMap;
   updateWidget: (widgetData: WidgetData, widgetId: string, clientId: string) => void;
+  deleteWidget: UseOverlayHelpers["deleteWidget"];
   clientId: string | undefined;
 }
 
