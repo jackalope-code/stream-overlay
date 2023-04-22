@@ -1,8 +1,10 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
-import Overlay, { WidgetDataMap } from "./Overlay";
+import Overlay, { UseOverlayHelpers, WidgetData, WidgetDataMap, useOverlay } from "./Overlay";
 import { env } from "./utils";
 import WidgetFieldForm from "./WidgetFieldForm";
+import WidgetPropertyForms from "./WidgetPropertyForms";
+import { FormikHelpers, FormikValues } from "formik";
 
 const routeUrl = env().routeUrl;
 
@@ -14,6 +16,9 @@ export default function OverlayEditPage() {
   // Tracks all the draggable networked components in one object
   const [widgetDataMap, setWidgetDataMap] = useState<WidgetDataMap>({});
   const [clientId, setClientId] = useState<string | undefined>();
+  // TODO: addWidget possibly undefined for some reason
+  // TODO: Can only be called once in top level... I want more of a context/provider use setup
+  const [_, helpers] = useOverlay(setWidgetDataMap, widgetDataMap, clientId);
   
   // TODO: IMPORTANT SET FROM OVERLAY REQUEST AND PREVENT NEW CLIENTS OVERRIDING
   const [overlayDimensions, setOverlayDimensions] = useState({width: 1920, height: 1080});
@@ -71,6 +76,21 @@ export default function OverlayEditPage() {
     setEditorScale(scale);
     setEditorTranslateY(`${translateYValue}%`);
   }
+
+  function handleAddWidgetFieldForm(values: FormikValues, formikHelpers: FormikHelpers<FormikValues>): void | Promise<any> {
+    if(values !== undefined && helpers.addWidget && clientId) {
+      const widget: WidgetData = {
+        x: values.xInput,
+        y: values.yInput,
+        width: values.widthInput,
+        height: values.heightInput,
+        url: values.urlInput,
+        moving: false
+      }
+      helpers.addWidget(widget, clientId);
+    }
+    formikHelpers.setSubmitting(false);
+  }
   
   // TODO: no space under the overlay or around the sides when it's larger 
   // TODO: Separate out editor form properties
@@ -112,7 +132,9 @@ export default function OverlayEditPage() {
           <input type="submit" value="Update"/>
         </fieldset>
       </form>
-      <WidgetFieldForm setWidgetDataMap={setWidgetDataMap} widgetDataMap={widgetDataMap} clientId={clientId} />
+      {/* TODO: FIX PROP DRILLING */}
+      <WidgetPropertyForms widgetDataMap={widgetDataMap} updateWidget={helpers.updateWidget as UseOverlayHelpers["updateWidget"]} clientId={clientId}/>
+      <WidgetFieldForm handleFormSubmit={handleAddWidgetFieldForm} buttonType="add"/>
       <div style={{display: "flex", justifyContent: "center"}}>
         <Overlay
           dimensions={overlayDimensions}

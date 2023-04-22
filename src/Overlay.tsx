@@ -31,9 +31,90 @@ export interface WidgetData {
   owner?: string;
 }
 
+export interface WidgetUpdateData {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 export interface WidgetDataMap {
   [key: string]: WidgetData;
 }
+
+interface UseOverlayProps {
+  setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
+  widgetDataMap: WidgetDataMap;
+  clientId: string | undefined;
+}
+
+export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetDataMap: WidgetDataMap, clientId: string | undefined) {
+  console.log("RUN ADD " + JSON.stringify(widgetDataMap));
+  function addNewAndBlindUpdate(widgetData: WidgetData, clientId: string) {
+    const newWidget = {
+      url: widgetData.url,
+      x: widgetData.x,
+      y: widgetData.y,
+      width: widgetData.width,
+      height: widgetData.height
+    }
+    // TODO: error handling if not connected to WS client
+    if(!clientId) {
+      alert("Error connecting to server");
+    } else {
+      (async () => {
+        const res = await axios.post(`${routeUrl}/component`, {
+          ...newWidget,
+          clientId
+        })
+        setWidgetDataMap(data => ({
+          ...copyAllWidgetData(data),
+          ...{[res.data.componentId]: newWidget}
+        }));
+      })();
+    }
+  }
+  function updateWidgetBlind(widgetData: WidgetUpdateData, widgetId: string, clientId: string): UseOverlay | void {
+    console.log("RUN UPDATE " + JSON.stringify(widgetData));
+    const widgetUpdateData: WidgetUpdateData = {
+      x: widgetData.x,
+      y: widgetData.y,
+      width: widgetData.width,
+      height: widgetData.height
+    }
+    // TODO: error handling if not connected to WS client
+    if(!clientId) {
+      alert("Error connecting to server");
+      throw new Error("Error connecting to server");
+    } else {
+      (async () => {
+        const res = await axios.put(`${routeUrl}/component/${widgetId}`, {
+          ...widgetUpdateData,
+          clientId
+        })
+        const newWidget: WidgetData = {...widgetUpdateData, moving: false, url: res.data.url};
+        setWidgetDataMap(data => ({
+          ...copyAllWidgetData(data),
+          ...{[res.data.componentId]: newWidget}
+        }))
+      })();
+    }
+  }
+  return [{clientId, widgetDataMap}, {addWidget: addNewAndBlindUpdate, updateWidget: updateWidgetBlind}];
+}
+
+export interface UseOverlayHelpers {
+  addWidget: (widgetData: WidgetData, clientId: string) => void;
+  updateWidget: (widgetData: WidgetData, widgetId: string, clientId: string) => void;
+}
+
+export interface UseOverlayState {
+  clientId: string;
+  widgetDataMap: WidgetDataMap;
+}
+
+export type UseOverlay = [UseOverlayState, UseOverlayHelpers];
 
 const mockData: WidgetDataMap = {
   "1": {
@@ -73,20 +154,26 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   // lastMessage: Last message update from the server
   const { sendMessage, lastMessage, readyState } = useWebSocket<{id: string}>(socketUrl);
 
+  useEffect(() => {
+    console.log("WIDGET DATA CHANGE");
+    console.log(JSON.stringify(widgetDataMap));
+  }, [widgetDataMap])
+
   // Message handling
   useEffect(() => {
     // Message shape should match WSMessage types from the server
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
-      // console.log("MESSAGE DATA", messageData)
+      console.log("MESSAGE DATA", messageData)
       if(messageData.type === 'connect') {
         const {clientId} = messageData;
-        console.log("set clientId")
         setClientId(clientId);
       } else if(messageData.type === 'update') {
-        const {componentId, x, y} = messageData;
+        const {componentId, x, y, width, height} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
-        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y})
+        console.log(widgetDataMap === objCopy)
+        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height})
+        console.log("SETTER " + JSON.stringify(objCopy[componentId]))
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'add') {
         const {componentId, x, y, width, height, url} = messageData;
@@ -100,14 +187,11 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
     }
   }, [lastMessage]);
 
-  // Execute when component loads
+  // Execute when component ID changes to load existing networked objects
   useEffect(() => {
     (async () => {
       if(clientId !== undefined) {
-        console.log("making async request")
         const res = await axios.get(`${routeUrl}/components`);
-        console.log("async data");
-        console.log(res.data);
         setWidgetDataMap(res.data);
       }
     })();

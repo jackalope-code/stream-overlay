@@ -1,28 +1,59 @@
 // import styled from 'styled-components';
 
 import axios from "axios";
-import { WidgetDataMap } from "./Overlay";
+import { WidgetData, WidgetDataMap } from "./Overlay";
 import { copyAllWidgetData, env } from "./utils";
+import { Field, Form, Formik } from "formik";
+import { FormikValues, FormikHelpers } from "formik/dist/types";
+import { useEffect } from "react";
 
 // const Input = styled.input(props => {
 //   return `
 //     width: 15ch;
 // `});
 
+export interface FormValues {
+  xInput: number;
+  yInput: number;
+  urlInput: string;
+  widthInput: number;
+  heightInput: number;
+}
+// interface WidgetFormProps {
+//   setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
+//   widgetDataMap: WidgetDataMap;
+//   clientId: string | undefined;
+// }
+// function handleFormikSubmit(values: FormikValues, formikHelpers: FormikHelpers<FormikValues>): void | Promise<any> {
+
+// function handleFormikSubmit(values: FormValues, formikHelpers: FormikHelpers<FormValues>): void | Promise<any> {
+
+//   formikHelpers.setSubmitting(false);
+// }
+
+type FormSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => void;
+
+type FormikSubmitHandler<Values> = (values: Values, formikHelpers: FormikHelpers<Values>) => void | Promise<any>;
+
+type ButtonType = 'add' | 'update';
+
 interface WidgetFormProps {
+  handleFormSubmit: FormikSubmitHandler<FormikValues>;
+  data?: WidgetData;
+  buttonType: ButtonType;
+  id?: string;
+}
+
+interface UseWidgetFormSubmitProps {
   setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   widgetDataMap: WidgetDataMap;
   clientId: string | undefined;
 }
 
-const routeUrl = env().routeUrl;
-
-export default function WidgetFieldForm({setWidgetDataMap, widgetDataMap, clientId}: WidgetFormProps)  {
-  // const formStyling: React.CSSProperties = {
-  //   "form input"
-  //   width: "15ch"
-  // }
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+export const useWidgetFormSubmit = ({
+  setWidgetDataMap, widgetDataMap, clientId
+}: UseWidgetFormSubmitProps): FormSubmitHandler => {
+  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault();
     const target = e.currentTarget;
     // TODO: form validation
@@ -49,48 +80,76 @@ export default function WidgetFieldForm({setWidgetDataMap, widgetDataMap, client
           ...newWidget,
           clientId
         })
-        console.log("before", widgetDataMap)
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),
           ...{[res.data.componentId]: newWidget}
         }))
-        console.log("after", widgetDataMap)
       })();
     }
   }
 
+  return handleFormSubmit;
+}
+
+const routeUrl = env().routeUrl;
+
+
+export default function WidgetFieldForm({handleFormSubmit, data, buttonType}: WidgetFormProps)  {
+
+  let initialValues: FormikValues = {};
+  if(data) {
+    initialValues = {
+      xInput: data.x,
+      yInput: data.y,
+      urlInput: data.url || "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
+      widthInput: data.width,
+      heightInput: data.height
+    }
+  }
+
+  function renderButton(buttonType: ButtonType) {
+    if(buttonType === 'add') {
+      return <input type="submit" value="Add"/>
+    } else if(buttonType === 'update') {
+      return <input type="submit" value="Update"/>
+    }
+  }
+  
   return (
-    <div >
-      <form
+    <Formik
+      onSubmit={handleFormSubmit}
+      initialValues={initialValues}
+      enableReinitialize={true}
+    >
+      <Form
         style={{display: "flex", flexDirection: "row", columnGap: "10px"}}
-        onSubmit={handleFormSubmit}
       >
         <label>
           URL:
-          <input type="text" name="urlInput" defaultValue={"https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp"}/>
+          <Field type="text" name="urlInput" />
         </label>
         <label>
           X:
-          <input type="number" name="xInput" />
+          <Field type="number" name="xInput" />
         </label>
         <label>
           Y:
-          <input type="number" name="yInput" />
+          <Field type="number" name="yInput" />
         </label>
         <label>
           Width:
-          <input type="number" name="widthInput" />
+          <Field type="number" name="widthInput" />
         </label>
         <label>
           Height:
-          <input type="number" name="heightInput" />
+          <Field type="number" name="heightInput" />
         </label>
         <label>
           Visible:
           <input type="toggle" name="visible" />
         </label>
-        <input type="submit" value="Add"/>
-      </form>
-    </div>
+        {renderButton(buttonType)}
+      </Form>
+    </Formik>
   )
 }

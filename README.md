@@ -51,6 +51,8 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
+- Adding and updating one item causes an error on the other view. Objects are not getting updated correctly somewhere.
+- Some objects are not generated properly with ID's are are just "ghost objects"
 - URGENT: No way to delete anything.
 - Fields aren't connected to update components once added... there is no component tracking or updating shown on forms
 - Hosting and env vars all over the place
