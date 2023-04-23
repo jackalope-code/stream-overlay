@@ -51,17 +51,17 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
-- Adding and updating one item causes an error on the other view. Objects are not getting updated correctly somewhere.
-- Some objects are not generated properly with ID's are are just "ghost objects". Try adding and manipulating multiple items. Item map gets weird w/ state updates.
-- URGENT: No way to delete anything.
-- Fields aren't connected to update components once added... there is no component tracking or updating shown on forms
+- ID's are getting screwed up
+  - Adding and updating one item causes an error on the other view. Objects are not getting updated correctly somewhere.
+  - Some objects are not generated properly with ID's are are just "ghost objects". Try adding and manipulating multiple items. Item map gets weird w/ state updates.
+  - Strange issues with the editor on refresh and component changes (is this still happening?)  
+      Something is getting duplicated and not sent back with urls.
+- URGENT: Long repeating floats when working with differently scaled values.
+- REST and WS unsecured.
 - Hosting and env vars all over the place
-- Strange issues with the editor on refresh and component changes (is this still happening?)  
-    Something is getting duplicated and not sent back with urls.
 - No persistance on API restart.
 - GUI sucks.
 - There's no lock on dragging so there may be unexpected behavior with multiple users dragging.
-- URGENT: Long repeating floats when working with differently scaled values.
 - Doesn't upsize images... only downsizes
 - Websocket shape is not clearly defined or typed.
 - Websocket update messages are long and usually don't update much at once.
@@ -69,8 +69,8 @@ https://react.dev/reference/react
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
 ## Remaining work
-1. Add a delete endpoint and integration w/ a form button
-2. Add and integrate simple password protection
+1. Bugfixes
+2. Add and integrate password protection with possibilities for extension to Twitch accounts
 3. Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
 4. Various fixes
   - Add confirm dialogue for overlay resize
@@ -80,6 +80,8 @@ https://react.dev/reference/react
   - Validation and testing on forms and endpoints, w/ proper error handling
   - Remove log statements
 5. Support videos
+6. Save/import collections somehow?
+7. Update workflow?
 - CHECKPOINT: Publish, merge, and branch
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
