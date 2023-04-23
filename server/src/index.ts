@@ -17,6 +17,12 @@ if(!process.env.CLIENT_URL) {
   throw new Error("Could not locate CLIENT_URL env var for CORS.");
 }
 
+const API_PASSWORD = process.env.API_PASSWORD;
+
+if(API_PASSWORD == undefined) {
+  throw new Error("Could not locate API_PASSWORD in the env file.");
+}
+
 app.use(function setCommonHeaders(req, res, next) {
   res.set("Access-Control-Allow-Private-Network", "true");
   next();
@@ -30,7 +36,6 @@ app.use(cors<cors.CorsRequest>(
 
 app.use(express.json());
 
-// TODO: AUTH LAYER HERE
 
 // TODO: There is one session. Session management is not implemented.
 
@@ -63,7 +68,7 @@ interface ComponentMap {
   [key: string]: ComponentParams;
 }
 interface ClientMap {
-  [key: string]: WebSocket
+  [key: string]: WebSocket | undefined;
 }
 
 // Track all connected websocket clients
@@ -126,27 +131,46 @@ type BroadcastMessage =
 
 function broadcastAll(msg: BroadcastMessage) {
   for(let client of Object.values(clients)) {
-    client.send(JSON.stringify(msg));
+    if(client !== undefined) {
+      client.send(JSON.stringify(msg));
+    }
   }
 }
 
 function broadcastExcludeId(msg: BroadcastMessage, ignoreId: string) {
   for(let id of Object.keys(clients)) {
     if(id !== ignoreId) {
-      clients[id].send(JSON.stringify(msg));
+      const client = clients[id];
+      if(client !== undefined) {
+        client.send(JSON.stringify(msg));
+      }
     }
   }
 }
 
 function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) {
   for(let client of Object.values(clients)) {
-    if(client !== ignoreClient) {
+    if(client !== ignoreClient && client !== undefined) {
       client.send(JSON.stringify(msg));
     }
   }
 }
 
-// TODO: AUTHENTICATION
+// app.post('/auth', (req, res) => {
+//   const {password} = req.body;
+//   if(password === API_PASSWORD) {
+//     // Assign client ID on authorization
+//     const clientId = randomUUID();
+//     clients[clientId] = undefined;
+//   } else {
+//     res.sendStatus(401);
+//   }
+// })
+
+// // TODO: AUTHENTICATION
+// app.use((req, res, next) => {
+
+// })
 
 // Once a websocket connection is established, clients will receive other
 // client updates and broadcast updates made from REST through websockets
@@ -155,7 +179,7 @@ function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) 
 // TODO: Update limiting from client?
 // TODO: Just move routes into here? What was I thinking? WS is always used anyways.
 app.ws('/', function(ws, req: Request<{}>) {
-  // Assign client ID on connection
+  // Map authenticated client to new WS connection
   const clientId = randomUUID();
   clients[clientId] = ws;
   ws.send(JSON.stringify({type: 'connect', clientId}));
