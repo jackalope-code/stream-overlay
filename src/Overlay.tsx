@@ -1,4 +1,4 @@
-import {useEffect, useState } from 'react';
+import {useCallback, useEffect, useRef, useState } from 'react';
 import Widget from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData, env } from './utils';
@@ -163,6 +163,18 @@ const mockData: WidgetDataMap = {
 const socketUrl = env().socketUrl;
 const routeUrl = env().routeUrl;
 
+type PromiseResolve = (value: string | PromiseLike<string>) => void;
+
+export function useDelayedWebSocket() {
+  let connectToUrl = useRef<PromiseResolve>();
+  const delayedUrlResolver = useCallback(async () => {
+    return await new Promise<string>((resolve) => {
+      connectToUrl.current = resolve;
+    });
+  }, []);
+  return {...useWebSocket(delayedUrlResolver), delayedConnect: connectToUrl.current as PromiseResolve};
+}
+
 // TODO: Should be controlled so the editor can access component data properties
 // and uncontrolled so that the overlay view can update itself
 
@@ -173,12 +185,27 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
   // lastMessage: Last message update from the server
-  const { sendMessage, lastMessage, readyState } = useWebSocket<{id: string}>(socketUrl);
+  const { delayedConnect, sendMessage, lastMessage, readyState } = useDelayedWebSocket();
 
+  // TODO: DEBUG
   useEffect(() => {
     console.log("WIDGET DATA CHANGE");
     console.log(JSON.stringify(widgetDataMap));
   }, [widgetDataMap])
+
+  useEffect(() => {
+    console.log("OVERLAY LOADED");
+  }, []);
+
+  useEffect(() => {
+    if(clientId !== undefined) {
+      const ws = new WebSocket(`${socketUrl}/${clientId}`);
+      function onMessage(e: any) {
+        ws.close();
+      }
+      ws.onmessage = onMessage;
+    }
+  }, [clientId]);
 
   // Message handling
   useEffect(() => {
@@ -216,11 +243,25 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   useEffect(() => {
     (async () => {
       if(clientId !== undefined) {
-        const res = await axios.get(`${routeUrl}/components`);
+        // Establish WS connection
+        delayedConnect(`${socketUrl}/${clientId}`);
+        // Load and set data from REST
+        const res = await axios.get(`${routeUrl}/components`, {data: {clientId}});
         setWidgetDataMap(res.data);
       }
     })();
   }, [clientId])
+
+  // Login
+  useEffect(() => {
+    (async () => {
+      const res = await axios.post(`${routeUrl}/auth`, {
+        password: "claymore"
+      });
+      setClientId(res.data.clientId);
+    })();
+  }, [])
+
   
   // Creates the array of Widget elements that the Overlay will render from provided component data
   const generateWidgets = (data: WidgetDataMap) => {

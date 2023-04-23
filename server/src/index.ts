@@ -187,7 +187,11 @@ app.ws('/:clientId', function(ws, req) {
     throw new Error("Authentication required. Invalid clientId provided.")
   }
   clients[clientId] = ws;
-  ws.send(JSON.stringify({type: 'connect', clientId}));
+
+  // TODO: unnecessary and insecure with current auth methods.
+  //ws.send(JSON.stringify({type: 'connect', clientId}));
+
+
   // Forward update messages to other connected clients (websocket connection)
   // Requires these parameters from the client or the client breaks:
   // type:  event

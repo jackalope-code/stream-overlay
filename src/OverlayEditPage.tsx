@@ -50,7 +50,8 @@ export default function OverlayEditPage() {
       // TODO: error message if it doesnt set
       const res = await axios.put(`${routeUrl}/overlay`, {
         width,
-        height
+        height,
+        clientId
       });
     })();
   }
