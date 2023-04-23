@@ -199,12 +199,12 @@ app.get("/", (req, res, err) => {
 
 // Get all components for the session
 app.get("/components", (req, res) => {
-  const allComponents: ComponentAllParams[] = Object.entries(components).reduce(
-    (res, [key, componentData]) => {
-      res.push(Object.assign({componentId: key}, componentData));
-      return res;
-  }, [] as ComponentAllParams[])
-  res.status(200).json(allComponents);
+  // const allComponents: ComponentAllParams[] = Object.entries(components).reduce(
+  //   (res, [key, componentData]) => {
+  //     res.push(Object.assign({componentId: key}, componentData));
+  //     return res;
+  // }, [] as ComponentAllParams[])
+  res.status(200).json(components);
 });
 
 // Get overlay dimensions

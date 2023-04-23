@@ -98,9 +98,9 @@ https://react.dev/reference/react
     - Connection errors
     - Invalid input errors
     - Missing input errors
-- Revisit the GUI
-- Add persistance
+- Add server persistance
   - Redis?
+- Revisit the GUI
 - Add session management capabilities if supporting multiple clients from one host.
 - Text and text editing
 - Merge, republish, and branch here? Aim for backwards compatibility so future updates are more seamless. Future updates to support could include video link and syncing, WS transport changes, SESSIONS, TWITCH AUTH, UI changes, component VISIBILITY CHANGES, networked clear all, grid snapping behavior, etc. Store and persist what is needed.
