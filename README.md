@@ -125,6 +125,13 @@ Requires time sync updates for live playback control
   - More advanced image editing?
 - Other embeds?
 
+## Feature ideas
+- Drawing
+- Basic image manipulation
+- Mod screening interface: approve/reject user-submitted content when allowed or from donos to allow for dono mediashare integration
+- Better audio controls
+- Advanced embeds
+
 ## Troubleshooting
 - If objects are not working or nothing is letting you drag it, make sure the server is running and connected properly. Server error statuses would be good to add in the future.
 
