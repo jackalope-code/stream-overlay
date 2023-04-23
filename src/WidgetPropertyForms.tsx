@@ -10,7 +10,7 @@ interface WidgetPropertyFormProps {
   clientId: string | undefined;
 }
 
-const WidgetPropertyForms = ({widgetDataMap, updateWidget, clientId}: WidgetPropertyFormProps) => {
+const WidgetPropertyForms = ({widgetDataMap, updateWidget, deleteWidget, clientId}: WidgetPropertyFormProps) => {
   function handleFormikSubmit(widgetId: string, values: FormikValues, formikHelpers: FormikHelpers<FormikValues>): void | Promise<any> {
     const widgetCopy = {...widgetDataMap[widgetId]}
     widgetCopy.x = values.xInput;
@@ -24,6 +24,13 @@ const WidgetPropertyForms = ({widgetDataMap, updateWidget, clientId}: WidgetProp
     formikHelpers.setSubmitting(false);
   }
 
+  function handleDelete(componentId: string) {
+    // TODO: silently fails if client ID isn't set from a connection
+    if(clientId) {
+      deleteWidget(componentId, clientId);
+    }
+  }
+
   return (
     <>
     {
@@ -31,7 +38,9 @@ const WidgetPropertyForms = ({widgetDataMap, updateWidget, clientId}: WidgetProp
         <WidgetFieldForm
           key={id}
           handleFormSubmit={(values, helpers) => handleFormikSubmit(id, values, helpers)}
+          handleFormDelete={handleDelete}
           data={widget}
+          widgetId={id}
           buttonType="update"
         />
       ))

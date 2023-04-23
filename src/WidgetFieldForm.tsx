@@ -39,9 +39,10 @@ type ButtonType = 'add' | 'update';
 
 interface WidgetFormProps {
   handleFormSubmit: FormikSubmitHandler<FormikValues>;
+  handleFormDelete?: (componentId: string) => void;
   data?: WidgetData;
   buttonType: ButtonType;
-  id?: string;
+  widgetId?: string;
 }
 
 interface UseWidgetFormSubmitProps {
@@ -94,7 +95,7 @@ export const useWidgetFormSubmit = ({
 const routeUrl = env().routeUrl;
 
 
-export default function WidgetFieldForm({handleFormSubmit, data, buttonType}: WidgetFormProps)  {
+export default function WidgetFieldForm({data, widgetId, buttonType, handleFormSubmit, handleFormDelete}: WidgetFormProps)  {
 
   let initialValues: FormikValues = {};
   if(data) {
@@ -107,17 +108,19 @@ export default function WidgetFieldForm({handleFormSubmit, data, buttonType}: Wi
     }
   }
 
-  function deleteClickHandler() {
-    alert("delete");
-  }
-
   function renderButtons(buttonType: ButtonType) {
     if(buttonType === 'add') {
       return <input type="submit" value="Add"/>
     } else if(buttonType === 'update') {
+      if(!widgetId) {
+        throw new Error("widgetId prop must be set for WidgetFieldForm 'update' type.");
+      }
+      if(!handleFormDelete) {
+        throw new Error("handleFormDelete prop must set for WidgetFieldForm 'update' type.")
+      }
       return (
         <>
-          <input type="button" value="Delete" onClick={deleteClickHandler}/>
+          <input type="button" value="Delete" onClick={() => handleFormDelete(widgetId)}/>
           <input type="submit" value="Update"/>
         </>
       )

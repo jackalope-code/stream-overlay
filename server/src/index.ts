@@ -146,6 +146,8 @@ function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) 
   }
 }
 
+// TODO: AUTHENTICATION
+
 // Once a websocket connection is established, clients will receive other
 // client updates and broadcast updates made from REST through websockets
 // until the client is disconnected.

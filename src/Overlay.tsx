@@ -104,12 +104,12 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
 
   function deleteWidgetBlind(widgetId: string, clientId: string) {
     deleteWidgetLocal(widgetId);
-    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`) })();
+    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`, {data: {clientId}}) })();
   }
 
   function deleteWidgetLocal(widgetId: string) {
     setWidgetDataMap(data => {
-      const mapCopy = {...copyAllWidgetData(data)};
+      const mapCopy = copyAllWidgetData(data);
       delete mapCopy[widgetId];
       return mapCopy;
     });
