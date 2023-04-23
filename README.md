@@ -69,20 +69,23 @@ https://react.dev/reference/react
 - Images could be hosted from anywhere so only allow mods or trusted users until there is better screening. This app is vulnerable to resources changing from the same URL.
 
 ## Remaining work
-1. Bugfixes
-2. Add and integrate password protection with possibilities for extension to Twitch accounts
-3. Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
-4. Various fixes
+1. Authentication
+  - Add and integrate password protection on ALL connections with possibilities for extension to Twitch accounts
+2. Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
+3. Various fixes
   - Add confirm dialogue for overlay resize
   - Truncate numbers on the server side
+  - Add form should clear out on submit and have proper validators. Empty shit should not get added from client/server sides
+  - Validation and testing on forms and endpoints, w/ proper error handling
   - Set up env vars that work for now for build/dev and revisit later
   - Sanity checks on API/client communication (look for ghost ID bug)
-  - Validation and testing on forms and endpoints, w/ proper error handling
   - Remove log statements
-5. Support videos
-6. Save/import collections somehow?
-7. Update workflow?
+4. Support videos
 - CHECKPOINT: Publish, merge, and branch
+- Revisit the GUI
+- Save/import collections somehow?
+- Add server persistance?
+  - Redis?
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
   - Fix docker environment variables
@@ -98,9 +101,6 @@ https://react.dev/reference/react
     - Connection errors
     - Invalid input errors
     - Missing input errors
-- Add server persistance
-  - Redis?
-- Revisit the GUI
 - Add session management capabilities if supporting multiple clients from one host.
 - Text and text editing
 - Merge, republish, and branch here? Aim for backwards compatibility so future updates are more seamless. Future updates to support could include video link and syncing, WS transport changes, SESSIONS, TWITCH AUTH, UI changes, component VISIBILITY CHANGES, networked clear all, grid snapping behavior, etc. Store and persist what is needed.
