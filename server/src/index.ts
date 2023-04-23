@@ -156,18 +156,19 @@ function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) 
   }
 }
 
-// app.post('/auth', (req, res) => {
-//   const {password} = req.body;
-//   if(password === API_PASSWORD) {
-//     // Assign client ID on authorization
-//     const clientId = randomUUID();
-//     clients[clientId] = undefined;
-//   } else {
-//     res.sendStatus(401);
-//   }
-// })
+app.post('/auth', (req, res) => {
+  const {password} = req.body;
+  if(password === API_PASSWORD) {
+    // Assign client ID on authorization
+    const clientId = randomUUID();
+    clients[clientId] = undefined;
+    res.json({clientId})
+  } else {
+    res.sendStatus(401);
+  }
+})
 
-// // TODO: AUTHENTICATION
+// TODO: AUTHENTICATION
 // app.use((req, res, next) => {
 
 // })
@@ -178,9 +179,13 @@ function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) 
 // TODO: Connection limiting?
 // TODO: Update limiting from client?
 // TODO: Just move routes into here? What was I thinking? WS is always used anyways.
-app.ws('/', function(ws, req: Request<{}>) {
+app.ws('/:clientId', function(ws, req) {
   // Map authenticated client to new WS connection
-  const clientId = randomUUID();
+  // TODO: clientId validation
+  const {clientId} = req.params;
+  if(!(clientId in clients)) {
+    throw new Error("Authentication required. Invalid clientId provided.")
+  }
   clients[clientId] = ws;
   ws.send(JSON.stringify({type: 'connect', clientId}));
   // Forward update messages to other connected clients (websocket connection)
