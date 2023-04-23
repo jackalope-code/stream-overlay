@@ -57,7 +57,7 @@ https://react.dev/reference/react
   - Strange issues with the editor on refresh and component changes (is this still happening?)  
       Something is getting duplicated and not sent back with urls.
 - URGENT: Long repeating floats when working with differently scaled values.
-- REST and WS unsecured.
+- Check auth on REST and WS.
 - Hosting and env vars all over the place
 - No persistance on API restart.
 - GUI sucks.
@@ -70,7 +70,9 @@ https://react.dev/reference/react
 
 ## Remaining work
 1. Authentication
-  - Add and integrate password protection on ALL connections with possibilities for extension to Twitch accounts
+  - Login screens
+    - Editor
+    - Generate viewer link for OBS from editor, viewer, or home pages
 2. Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
 3. Various fixes
   - Add confirm dialogue for overlay resize
@@ -79,13 +81,14 @@ https://react.dev/reference/react
   - Validation and testing on forms and endpoints, w/ proper error handling
   - Set up env vars that work for now for build/dev and revisit later
   - Sanity checks on API/client communication (look for ghost ID bug)
-  - Remove log statements
-4. Support videos
-- CHECKPOINT: Publish, merge, and branch
-- Revisit the GUI
-- Save/import collections somehow?
-- Add server persistance?
-  - Redis?
+- Remove log statements
+5. Merge + Branch
+6. Support videos
+  - CHECKPOINT: Publish, merge, and branch
+  - Revisit the GUI
+  - Save/import collections somehow?
+  - Add server persistance?
+    - Redis?
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
   - Fix docker environment variables
@@ -117,12 +120,6 @@ Requires time sync updates for live playback control
   - Toggle snap/drag movement
   - Snap to grid?
 - Performance logging and revisit site hosting
-- Image uploading? More secure to manage from the app, but managing uploads and storage becomes a concern.
-- I think an image/resource approval interface would be cool and open up options to engage with more users.
-- Stretch features
-  - Drawing?
-  - Drag to resize?
-  - More advanced image editing?
 - Other embeds?
 
 ## Feature ideas
