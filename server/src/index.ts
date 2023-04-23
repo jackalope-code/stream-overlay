@@ -221,6 +221,19 @@ app.ws('/:clientId', function(ws, req) {
 // ==== REST ROUTES ====
 // TODO: Validation and error handling
 
+// Express middleware.
+// Following routes require a client ID generated from the server on
+// a new websocket connection. It is expected that the client holds
+// onto its ID and sends it with REST POST/PUT update messages.
+app.use((req: Request, res: any, next: any) => {
+  const {clientId} = req.body;
+  if(!clientId) {
+    throw new Error("Missing clientId from request body.");
+  }
+  res.locals.clientId = clientId;
+  next();
+});
+
 // Test endpoint
 app.get("/", (req, res, err) => {
   res.send("Hello");
@@ -261,18 +274,6 @@ app.put("/overlay", (req: Request<{width: number, height: number}>, res) => {
   res.sendStatus(200);
 })
 
-// Express middleware.
-// Following routes require a client ID generated from the server on
-// a new websocket connection. It is expected that the client holds
-// onto its ID and sends it with REST POST/PUT update messages.
-app.use((req: Request, res: any, next: any) => {
-  const {clientId} = req.body;
-  if(!clientId) {
-    throw new Error("Missing clientId from request body.");
-  }
-  res.locals.clientId = clientId;
-  next();
-});
 
 // Add a new component
 // TODO: Validation and number truncation w/ POST and PUT.
@@ -314,7 +315,6 @@ app.put("/component/:componentId", (req, res) => {
     res.send(data);
   }
 });
-
 
 // Delete component by ID
 app.delete("/component/:componentId", (req, res) => {
