@@ -168,6 +168,20 @@ app.post('/auth', (req, res) => {
   }
 })
 
+// Express middleware.
+// Following routes require a client ID generated from the server on
+// a new websocket connection. It is expected that the client holds
+// onto its ID and sends it with REST POST/PUT update messages.
+app.use((req: Request, res: any, next: any) => {
+  const clientId = req.header("Authorization");
+  console.log(req.body)
+  if(!clientId) {
+    throw new Error("Missing clientId from request body.");
+  }
+  res.locals.clientId = clientId;
+  next();
+});
+
 // TODO: AUTHENTICATION
 // app.use((req, res, next) => {
 
@@ -187,7 +201,7 @@ app.ws('/:clientId', function(ws, req) {
     throw new Error("Authentication required. Invalid clientId provided.")
   }
   clients[clientId] = ws;
-
+  
   // TODO: unnecessary and insecure with current auth methods.
   //ws.send(JSON.stringify({type: 'connect', clientId}));
 
@@ -225,18 +239,6 @@ app.ws('/:clientId', function(ws, req) {
 // ==== REST ROUTES ====
 // TODO: Validation and error handling
 
-// Express middleware.
-// Following routes require a client ID generated from the server on
-// a new websocket connection. It is expected that the client holds
-// onto its ID and sends it with REST POST/PUT update messages.
-app.use((req: Request, res: any, next: any) => {
-  const {clientId} = req.body;
-  if(!clientId) {
-    throw new Error("Missing clientId from request body.");
-  }
-  res.locals.clientId = clientId;
-  next();
-});
 
 // Test endpoint
 app.get("/", (req, res, err) => {
@@ -250,6 +252,8 @@ app.get("/components", (req, res) => {
   //     res.push(Object.assign({componentId: key}, componentData));
   //     return res;
   // }, [] as ComponentAllParams[])
+  console.log("RECEIVED COMPONENT GET REQUEST");
+  console.log(req);
   res.status(200).json(components);
 });
 
