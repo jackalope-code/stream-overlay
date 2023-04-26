@@ -163,16 +163,51 @@ const mockData: WidgetDataMap = {
 const socketUrl = env().socketUrl;
 const routeUrl = env().routeUrl;
 
-type PromiseResolve = (value: string | PromiseLike<string>) => void;
+type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
+type PromiseReject<T> = PromiseResolve<T>;
+// type PromiseResolve = (value: string | PromiseLike<string>) => void;
+
+class Deferred<T> {
+  resolve: PromiseResolve<T> | undefined;
+  reject: PromiseReject<T> | undefined;
+  promise: Promise<T>;
+
+  constructor() {
+    this.promise = new Promise<T>((resolve, reject) => {
+      this.reject = reject
+      this.resolve = resolve
+    })
+  }
+}
+
+// interface Deferred<T> {
+//   resolve: PromiseResolve<T> | undefined;
+//   reject: PromiseReject<T> | undefined;
+//   promise: Promise<T>; 
+// }
+
+// // eslint-disable-next-line @typescript-eslint/no-redeclare
+// const Deferred = function <T>(this: Deferred<T>) {
+//   var self = this;
+//   this.promise = new Promise(function(resolve, reject) {
+//     self.reject = reject
+//     self.resolve = resolve
+//   })
+// } as any as {new <T>(): Deferred<T>; };
 
 export function useDelayedWebSocket() {
-  let connectToUrl = useRef<PromiseResolve>();
+  let connectToUrl = useRef<PromiseResolve<string>>();
+  // const [connectToUrl, setConnectToUrl] = useState<PromiseResolve<string> | undefined>(); 
+  // let a = undefined;
   const delayedUrlResolver = useCallback(async () => {
-    return await new Promise<string>((resolve) => {
+    return new Promise<string>((resolve) => {
       connectToUrl.current = resolve;
+      // setConnectToUrl(resolve);
+      // a = resolve;
     });
   }, []);
-  return {...useWebSocket(delayedUrlResolver), delayedConnect: connectToUrl.current as PromiseResolve};
+  return {...useWebSocket(delayedUrlResolver), delayedConnect: connectToUrl.current};
+  // return {...useWebSocket(delayedUrlResolver), delayedConnect: connectToUrl.current as PromiseResolve};
 }
 
 // TODO: Should be controlled so the editor can access component data properties
@@ -185,7 +220,8 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
   // lastMessage: Last message update from the server
-  const { delayedConnect, sendMessage, lastMessage, readyState } = useDelayedWebSocket();
+  // TODO: Error handling if clientId ever fails
+  const { sendMessage, lastMessage, readyState } = useWebSocket(`${socketUrl}/${clientId}`);
 
   // TODO: DEBUG
   useEffect(() => {
@@ -196,16 +232,6 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   useEffect(() => {
     console.log("OVERLAY LOADED");
   }, []);
-
-  useEffect(() => {
-    if(clientId !== undefined) {
-      const ws = new WebSocket(`${socketUrl}/${clientId}`);
-      function onMessage(e: any) {
-        ws.close();
-      }
-      ws.onmessage = onMessage;
-    }
-  }, [clientId]);
 
   // Message handling
   useEffect(() => {
@@ -242,27 +268,22 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   // Execute when component ID changes to load existing networked objects
   useEffect(() => {
     (async () => {
+      // TODO: I hate the second check... is there any better way or is this normal hook behavior?
+      console.log("got client ID", clientId);
+      // console.log("delayedConnect", delayedConnect);
       if(clientId !== undefined) {
         // Establish WS connection
-        delayedConnect(`${socketUrl}/${clientId}`);
+        // console.log("establishing delayed WS connection")
+        // delayedConnect(`${socketUrl}/${clientId}`);
         // Load and set data from REST
-        const res = await axios.get(`${routeUrl}/components`, {data: {clientId}});
+        console.log("requesting components")
+        const res = await axios.get(`${routeUrl}/components`, {headers: {'Authorization': clientId}});
+        console.log("setting data", res.data);
         setWidgetDataMap(res.data);
       }
     })();
-  }, [clientId])
+  }, [clientId]);
 
-  // Login
-  useEffect(() => {
-    (async () => {
-      const res = await axios.post(`${routeUrl}/auth`, {
-        password: "claymore"
-      });
-      setClientId(res.data.clientId);
-    })();
-  }, [])
-
-  
   // Creates the array of Widget elements that the Overlay will render from provided component data
   const generateWidgets = (data: WidgetDataMap) => {
     const elements = []
