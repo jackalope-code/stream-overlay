@@ -65,8 +65,8 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
     } else {
       (async () => {
         const res = await axios.post(`${routeUrl}/component`, {
-          ...newWidget,
-          clientId
+          data: {...newWidget},
+          headers: {'Authorization': clientId }
         })
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),
@@ -90,8 +90,8 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
     } else {
       (async () => {
         const res = await axios.put(`${routeUrl}/component/${widgetId}`, {
-          ...widgetUpdateData,
-          clientId
+          data: {...widgetUpdateData},
+          headers: {'Authorization': clientId}
         })
         const newWidget: WidgetData = {...widgetUpdateData, moving: false, url: res.data.url};
         setWidgetDataMap(data => ({
@@ -104,7 +104,7 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
 
   function deleteWidgetBlind(widgetId: string, clientId: string) {
     deleteWidgetLocal(widgetId);
-    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`, {data: {clientId}}) })();
+    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`, {headers: {'Authorization': clientId}}) })();
   }
 
   function deleteWidgetLocal(widgetId: string) {
