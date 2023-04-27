@@ -18,7 +18,7 @@ export interface OverlayProps {
   widgetDataMap: WidgetDataMap;
   setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   clientId: string | undefined;
-  setClientId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  // setClientId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export interface WidgetData {
@@ -215,7 +215,7 @@ export function useDelayedWebSocket() {
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, setClientId, style, scale, translateY}: OverlayProps) => {
+const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, style, scale, translateY}: OverlayProps) => {
 
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
@@ -239,10 +239,7 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
       console.log("MESSAGE DATA", messageData)
-      if(messageData.type === 'connect') {
-        const {clientId} = messageData;
-        setClientId(clientId);
-      } else if(messageData.type === 'update') {
+      if (messageData.type === 'update') {
         const {componentId, x, y, width, height} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
         console.log(widgetDataMap === objCopy)
