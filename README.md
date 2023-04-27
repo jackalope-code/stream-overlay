@@ -52,6 +52,7 @@ https://react.dev/reference/react
 
 ## Issues
 - State management is fucked up.
+- Overlay dimensions probably aren't loaded by the editor and so are overwritten by new clients and not updated correctly.
 - URGENT: Long repeating floats when working with differently scaled values.
 - Check auth on REST and WS.
 - Hosting and env vars all over the place
