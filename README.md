@@ -51,6 +51,8 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
+- Refresh clears auth
+- Incorrect editor auth fails silently. Overlay view may be ok.
 - State management is fucked up.
 - Overlay dimensions probably aren't loaded by the editor and so are overwritten by new clients and not updated correctly.
 - URGENT: Long repeating floats when working with differently scaled values.
@@ -83,7 +85,7 @@ https://react.dev/reference/react
   - Validation and testing on forms and endpoints, w/ proper error handling
   - Set up env vars that work for now for build/dev and revisit later
   - Sanity checks on API/client communication (look for ghost ID bug)
-- Remove log statements
+  - Remove log statements
 5. Merge + Branch
 6. Support videos w/ realtime sync
   - Broadcast play/pause, timesync on load, resync from server on drag.
