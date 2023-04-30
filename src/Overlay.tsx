@@ -49,8 +49,21 @@ interface UseOverlayProps {
   clientId: string | undefined;
 }
 
-export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetDataMap: WidgetDataMap, clientId: string | undefined) {
-  console.log("RUN ADD " + JSON.stringify(widgetDataMap));
+export interface UseOverlayHelpers {
+  addWidget: (widgetData: WidgetData, clientId: string) => void;
+  updateWidget: (widgetData: WidgetData, widgetId: string, clientId: string) => void;
+  deleteWidget: (widgetId: string, clientId: string) => void;
+  deleteWidgetLocal: (widgetId: string) => void;
+}
+
+export interface UseOverlayState {
+  clientId: string;
+  widgetDataMap: WidgetDataMap;
+}
+
+export type UseOverlay = [UseOverlayState, UseOverlayHelpers];
+
+export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>): UseOverlayHelpers {
   function addNewAndBlindUpdate(widgetData: WidgetData, clientId: string) {
     const newWidget = {
       url: widgetData.url,
@@ -75,7 +88,8 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
       })();
     }
   }
-  function updateWidgetBlind(widgetData: WidgetUpdateData, widgetId: string, clientId: string): UseOverlay | void {
+
+  function updateWidgetBlind(widgetData: WidgetUpdateData, widgetId: string, clientId: string) {
     console.log("RUN UPDATE " + JSON.stringify(widgetData));
     const widgetUpdateData: WidgetUpdateData = {
       x: widgetData.x,
@@ -101,12 +115,12 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
       })();
     }
   }
-
+  
   function deleteWidgetBlind(widgetId: string, clientId: string) {
     deleteWidgetLocal(widgetId);
     (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`, {headers: {'Authorization': clientId}}) })();
   }
-
+  
   function deleteWidgetLocal(widgetId: string) {
     setWidgetDataMap(data => {
       const mapCopy = copyAllWidgetData(data);
@@ -115,27 +129,9 @@ export function useOverlay(setWidgetDataMap: SetState<WidgetDataMap>, widgetData
     });
   }
 
-  return [{clientId, widgetDataMap}, {
-    addWidget: addNewAndBlindUpdate,
-    updateWidget: updateWidgetBlind,
-    deleteWidgetLocal: deleteWidgetLocal,
-    deleteWidget: deleteWidgetBlind,
-  }];
+  return {addWidget: addNewAndBlindUpdate, updateWidget: updateWidgetBlind, deleteWidget: deleteWidgetBlind, deleteWidgetLocal};
 }
 
-export interface UseOverlayHelpers {
-  addWidget: (widgetData: WidgetData, clientId: string) => void;
-  updateWidget: (widgetData: WidgetData, widgetId: string, clientId: string) => void;
-  deleteWidget: (widgetId: string, clientId: string) => void;
-  deleteWidgetLocal: (widgetId: string) => void;
-}
-
-export interface UseOverlayState {
-  clientId: string;
-  widgetDataMap: WidgetDataMap;
-}
-
-export type UseOverlay = [UseOverlayState, UseOverlayHelpers];
 
 const mockData: WidgetDataMap = {
   "1": {
