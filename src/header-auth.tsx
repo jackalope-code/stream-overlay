@@ -4,13 +4,15 @@ import { env } from "./utils";
 
 const routeUrl = env().routeUrl;
 
+export type CallAuthenticate = (username: string, password: string) => void;
+
 export const useAuth = () => {
   const [clientId, setClientId] = useState<string | undefined>();
   const [isAuthenticated, setAuthenticated] = useState(false);
   const [authFailed, setAuthFailed] = useState(false);
   const [authFailMessage, setAuthFailMessage] = useState("");
 
-  // Authenticate from search params
+  // Authenticate from search params and set axios Authorization header
   function authenticate(username: string, password: string) {
     // Login
     // TODO: Handle authentication failure with username/password
@@ -21,6 +23,7 @@ export const useAuth = () => {
       }).then(res => {
         setClientId(res.data.clientId);
         setAuthenticated(true);
+        axios.defaults.headers.common['Authorization'] = clientId
       }).catch(error => {
         if(!error.response) {
           setAuthFailed(true);
