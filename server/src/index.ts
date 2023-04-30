@@ -156,6 +156,9 @@ function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) 
   }
 }
 
+// TODO (important): restrict login attempts
+// TODO (good qol without having to go to a server): Change password. Use DB instead of envs
+// TODO: (less important): disallow admin user, password password, other common insecure logins, and enforce some password quality
 app.post('/auth', (req, res) => {
   const {password} = req.body;
   if(password === API_PASSWORD) {
