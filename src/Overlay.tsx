@@ -72,15 +72,13 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
       width: widgetData.width,
       height: widgetData.height
     }
+    console.log('Add', newWidget);
     // TODO: error handling if not connected to WS client
     if(!clientId) {
-      alert("Error connecting to server");
+      throw new Error("Error connecting to server");
     } else {
       (async () => {
-        const res = await axios.post(`${routeUrl}/component`, {
-          data: {...newWidget},
-          // headers: {'Authorization': clientId }
-        })
+        const res = await axios.post(`${routeUrl}/component`, {...newWidget})
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),
           ...{[res.data.componentId]: newWidget}
@@ -99,14 +97,10 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
     }
     // TODO: error handling if not connected to WS client
     if(!clientId) {
-      alert("Error connecting to server");
       throw new Error("Error connecting to server");
     } else {
       (async () => {
-        const res = await axios.put(`${routeUrl}/component/${widgetId}`, {
-          data: {...widgetUpdateData},
-          // headers: {'Authorization': clientId}
-        })
+        const res = await axios.put(`${routeUrl}/component/${widgetId}`, {...widgetUpdateData})
         const newWidget: WidgetData = {...widgetUpdateData, moving: false, url: res.data.url};
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),

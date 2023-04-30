@@ -179,10 +179,15 @@ app.use((req: Request, res: any, next: any) => {
   const clientId = req.header("Authorization");
   console.log(req.body)
   if(!clientId) {
-    throw new Error("Missing clientId from request body.");
+    throw new Error("Missing clientId from Authorization header.");
   }
-  res.locals.clientId = clientId;
-  next();
+  // TODO: IMPORTANT Replace with passport sessions for secure account management and more flexibility
+  if(clientId in clients) {
+    res.locals.clientId = clientId;
+    next();
+  } else {
+    throw new Error("Invalid clientId in Authorization header.");
+  }
 });
 
 // TODO: AUTHENTICATION
@@ -255,8 +260,6 @@ app.get("/components", (req, res) => {
   //     res.push(Object.assign({componentId: key}, componentData));
   //     return res;
   // }, [] as ComponentAllParams[])
-  console.log("RECEIVED COMPONENT GET REQUEST");
-  console.log(req);
   res.status(200).json(components);
 });
 
@@ -293,6 +296,7 @@ app.post("/component", (req, res) => {
   const componentId = randomUUID();
   const {url, width, height, x, y} = req.body;
   const data = {componentId, url, width, height, x, y};
+  console.log("RECEIVED DATA", data);
   components[componentId] = data;
   broadcastExcludeId({...data, type: 'add'}, res.locals.clientId);
   res.send(data);
