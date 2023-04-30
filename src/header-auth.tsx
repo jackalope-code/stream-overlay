@@ -23,7 +23,7 @@ export const useAuth = () => {
       }).then(res => {
         setClientId(res.data.clientId);
         setAuthenticated(true);
-        axios.defaults.headers.common['Authorization'] = clientId
+        axios.defaults.headers.common['Authorization'] = res.data.clientId;
       }).catch(error => {
         if(!error.response) {
           setAuthFailed(true);

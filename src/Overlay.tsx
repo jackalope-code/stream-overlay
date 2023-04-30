@@ -79,7 +79,7 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
       (async () => {
         const res = await axios.post(`${routeUrl}/component`, {
           data: {...newWidget},
-          headers: {'Authorization': clientId }
+          // headers: {'Authorization': clientId }
         })
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),
@@ -105,7 +105,7 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
       (async () => {
         const res = await axios.put(`${routeUrl}/component/${widgetId}`, {
           data: {...widgetUpdateData},
-          headers: {'Authorization': clientId}
+          // headers: {'Authorization': clientId}
         })
         const newWidget: WidgetData = {...widgetUpdateData, moving: false, url: res.data.url};
         setWidgetDataMap(data => ({
@@ -118,7 +118,7 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
   
   function deleteWidgetBlind(widgetId: string, clientId: string) {
     deleteWidgetLocal(widgetId);
-    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`, {headers: {'Authorization': clientId}}) })();
+    (async () => { const res = await axios.delete(`${routeUrl}/component/${widgetId}`, /*{headers: {'Authorization': clientId}}*/) })();
   }
   
   function deleteWidgetLocal(widgetId: string) {
@@ -269,8 +269,9 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
         // console.log("establishing delayed WS connection")
         // delayedConnect(`${socketUrl}/${clientId}`);
         // Load and set data from REST
-        console.log("requesting components")
-        const res = await axios.get(`${routeUrl}/components`, {headers: {'Authorization': clientId}});
+        console.log("requesting components");
+        console.log(axios.defaults.headers.common);
+        const res = await axios.get(`${routeUrl}/components`, /*{headers: {'Authorization': clientId}}*/);
         console.log("setting data", res.data);
         setWidgetDataMap(res.data);
       }
