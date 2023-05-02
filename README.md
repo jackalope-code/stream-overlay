@@ -110,6 +110,7 @@ https://react.dev/reference/react
     - Connection errors
     - Invalid input errors
     - Missing input errors
+- Integrate with StreamElements, OBS, MediaShare?
 - Text and text editing
 - Examine protocol speed and stability
   - Optimize network changes (use binary for WS and evaluate API architecture)
