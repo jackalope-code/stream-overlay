@@ -51,7 +51,7 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
-- WS auth issues
+- Web embeds (video and other iframe) are laggy and require additional drag logic. Drag handles are bad. Might have to disable interactivity on drag.
 - Refresh clears auth
 - Incorrect editor auth fails silently. Overlay view may be ok.
 - State management is fucked up.
@@ -60,7 +60,6 @@ https://react.dev/reference/react
 - Overlay dimensions probably aren't loaded by the editor and so are overwritten by new clients and not updated correctly.
 - Overlay flashes auth error on successful auth. Auth error should only be shown on actual errors authenticating, not before authentication is done.
 - URGENT: Long repeating floats when working with differently scaled values.
-- Check auth on REST and WS.
 - Hosting and env vars all over the place
 - No persistance on API restart.
 - GUI sucks.
@@ -77,13 +76,12 @@ https://react.dev/reference/react
       Something is getting duplicated and not sent back with urls.
 
 ## Remaining work
-1. Authentication
-  - Login screens
-    - Editor
-    - Generate viewer link for OBS from editor, viewer, or home pages
-2. Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
-3. Various fixes
-  - Check username as well as password (one user/password that is shared rn... not ideal)
+* Support videos w/ realtime sync
+  - Broadcast play/pause, timesync on load, resync from server on drag.
+  - Ensure videos play through without restarting
+  - Ensure videos are roughly in sync so that there aren't noticeable differences between editor/broadcaster screens.
+- Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
+- Various fixes
   - Add confirm dialogue for overlay resize
   - Truncate numbers on the server side
   - Add form should clear out on submit and have proper validators. Empty shit should not get added from client/server sides
@@ -91,21 +89,15 @@ https://react.dev/reference/react
   - Set up env vars that work for now for build/dev and revisit later
   - Sanity checks on API/client communication (look for ghost ID bug)
   - Remove log statements
-4. Generate Overlay View page from Overlay Edit Page
-5. Implement release tagging
-6. Merge + Branch
-7. Support videos w/ realtime sync
-  - Broadcast play/pause, timesync on load, resync from server on drag.
-  - Ensure videos play through without restarting
-  - Ensure videos are roughly in sync so that there aren't noticeable differences between editor/broadcaster screens.
-8. Revisit build process
+- Implement release tagging
+- Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
   - Fix docker environment variables
   - Have better flags for automatic builds
   - Add deployment instructions to README
 - 0.9 CHECKPOINT: Publish, merge, and branch
 - Revisit the GUI
-- Save/import collections somehow?
+- Save/import collections somehow? (User account sessions)
 - Add server persistance?
   - Redis?
 - Work on testing, security and stability
