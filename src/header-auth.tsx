@@ -11,11 +11,13 @@ export const useAuth = () => {
   const [isAuthenticated, setAuthenticated] = useState(false);
   const [authFailed, setAuthFailed] = useState(false);
   const [authFailMessage, setAuthFailMessage] = useState("");
+  const [credentials, setCredentials] = useState<{username: string, password: string} | undefined>();
 
   // Authenticate from search params and set axios Authorization header
   function authenticate(username: string, password: string) {
     // Login
     // TODO: Handle authentication failure with username/password
+    setCredentials({username, password});
     (async () => {
       axios.post(`${routeUrl}/auth`, {
         username,
@@ -33,5 +35,5 @@ export const useAuth = () => {
     })();
   }
 
-  return {clientId, isAuthenticated, authFailed, authFailMessage, authenticate};
+  return {clientId, isAuthenticated, authFailed, authFailMessage, authenticate, credentials};
 }
