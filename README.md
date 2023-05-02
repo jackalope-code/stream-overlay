@@ -55,6 +55,8 @@ https://react.dev/reference/react
 - Refresh clears auth
 - Incorrect editor auth fails silently. Overlay view may be ok.
 - State management is fucked up.
+- http://localhost:4000/?username=[user]&password=[pass] should be guarded, not an invalid credential method. Guard routes and params. (not the port)
+- http://localhost:3000/?username=[user]&password=[pass] should show 404
 - Overlay dimensions probably aren't loaded by the editor and so are overwritten by new clients and not updated correctly.
 - Overlay flashes auth error on successful auth. Auth error should only be shown on actual errors authenticating, not before authentication is done.
 - URGENT: Long repeating floats when working with differently scaled values.
