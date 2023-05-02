@@ -89,6 +89,7 @@ https://react.dev/reference/react
   - Set up env vars that work for now for build/dev and revisit later
   - Sanity checks on API/client communication (look for ghost ID bug)
   - Remove log statements
+  - Make update wait time a client env var and server env var and enforce update wait time from the server
 - Implement release tagging
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.

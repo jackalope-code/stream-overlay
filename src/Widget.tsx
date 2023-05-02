@@ -31,6 +31,9 @@ export enum WidgetType {
   Embed
 }
 
+// TODO: Set as an env var and enforce updates from server env
+const UPDATE_WAIT_TIME = 50;
+
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
 const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, sendMessage, setComponentData, type, draggableChildren}) => {
   // Unused state variable
@@ -54,7 +57,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
 
   const sendDragUpdate = useCallback(throttle((widgetData: {x: number, y: number}) => {
     sendMessage(JSON.stringify({componentId: id, x: widgetData.x, y: widgetData.y, width, height}))
-  }, 50), []);
+  }, UPDATE_WAIT_TIME), []);
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
     e.stopPropagation();
