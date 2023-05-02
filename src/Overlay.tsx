@@ -211,7 +211,8 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   // sendMessage: Function that sends message data to the server across the websocket connection
   // lastMessage: Last message update from the server
   // TODO: Error handling if clientId ever fails
-  const { sendMessage, lastMessage, readyState } = useWebSocket(`${socketUrl}/${clientId}`);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(`${socketUrl}/?clientId=${clientId}`);
+  // const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   // TODO: DEBUG
   useEffect(() => {

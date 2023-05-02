@@ -68,7 +68,7 @@ interface ComponentMap {
   [key: string]: ComponentParams;
 }
 interface ClientMap {
-  [key: string]: WebSocket | undefined;
+  [key: string]: WebSocket | null;
 }
 
 // Track all connected websocket clients
@@ -131,7 +131,7 @@ type BroadcastMessage =
 
 function broadcastAll(msg: BroadcastMessage) {
   for(let client of Object.values(clients)) {
-    if(client !== undefined) {
+    if(client !== null) {
       client.send(JSON.stringify(msg));
     }
   }
@@ -141,7 +141,7 @@ function broadcastExcludeId(msg: BroadcastMessage, ignoreId: string) {
   for(let id of Object.keys(clients)) {
     if(id !== ignoreId) {
       const client = clients[id];
-      if(client !== undefined) {
+      if(client !== null) {
         client.send(JSON.stringify(msg));
       }
     }
@@ -150,50 +150,11 @@ function broadcastExcludeId(msg: BroadcastMessage, ignoreId: string) {
 
 function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) {
   for(let client of Object.values(clients)) {
-    if(client !== ignoreClient && client !== undefined) {
+    if(client !== ignoreClient && client !== null) {
       client.send(JSON.stringify(msg));
     }
   }
 }
-
-// TODO (important): restrict login attempts
-// TODO (good qol without having to go to a server): Change password. Use DB instead of envs
-// TODO: (less important): disallow admin user, password password, other common insecure logins, and enforce some password quality
-app.post('/auth', (req, res) => {
-  const {password} = req.body;
-  if(password === API_PASSWORD) {
-    // Assign client ID on authorization
-    const clientId = randomUUID();
-    clients[clientId] = undefined;
-    res.json({clientId})
-  } else {
-    res.sendStatus(401);
-  }
-})
-
-// Express middleware.
-// Following routes require a client ID generated from the server on
-// a new websocket connection. It is expected that the client holds
-// onto its ID and sends it with REST POST/PUT update messages.
-app.use((req: Request, res: any, next: any) => {
-  const clientId = req.header("Authorization");
-  console.log(req.body)
-  if(!clientId) {
-    throw new Error("Missing clientId from Authorization header.");
-  }
-  // TODO: IMPORTANT Replace with passport sessions for secure account management and more flexibility
-  if(clientId in clients) {
-    res.locals.clientId = clientId;
-    next();
-  } else {
-    throw new Error("Invalid clientId in Authorization header.");
-  }
-});
-
-// TODO: AUTHENTICATION
-// app.use((req, res, next) => {
-
-// })
 
 // Once a websocket connection is established, clients will receive other
 // client updates and broadcast updates made from REST through websockets
@@ -201,11 +162,21 @@ app.use((req: Request, res: any, next: any) => {
 // TODO: Connection limiting?
 // TODO: Update limiting from client?
 // TODO: Just move routes into here? What was I thinking? WS is always used anyways.
-app.ws('/:clientId', function(ws, req) {
+app.ws('/', function(ws, req) {
   // Map authenticated client to new WS connection
-  // TODO: clientId validation
-  const {clientId} = req.params;
-  if(!(clientId in clients)) {
+  let clientId = null;
+  const rawParams = req.url.split("?")[1];
+  console.log(rawParams);
+  if(rawParams.includes("clientId=")) {
+    const startIndex = rawParams.indexOf("clientId=")+"clientId=".length;
+    let splitParam = rawParams.slice(startIndex);
+    console.log("splitParam", splitParam);
+    splitParam = splitParam.split("&")[0];
+    clientId = splitParam;
+  }
+  console.log("Connected to " + clientId);
+  if(clientId === null || !(clientId in clients)) {
+    console.log("MISSING CLIENT ID IN WS");
     throw new Error("Authentication required. Invalid clientId provided.")
   }
   clients[clientId] = ws;
@@ -243,6 +214,46 @@ app.ws('/:clientId', function(ws, req) {
     }
   })
 });
+
+// TODO (important): restrict login attempts
+// TODO (good qol without having to go to a server): Change password. Use DB instead of envs
+// TODO: (less important): disallow admin user, password password, other common insecure logins, and enforce some password quality
+app.post('/auth', (req, res) => {
+  const {password} = req.body;
+  if(password === API_PASSWORD) {
+    // Assign client ID on authorization
+    const clientId = randomUUID();
+    clients[clientId] = null;
+    res.json({clientId})
+  } else {
+    res.sendStatus(401);
+  }
+})
+
+// Express middleware.
+// Following routes require a client ID generated from the server on
+// a new websocket connection. It is expected that the client holds
+// onto its ID and sends it with REST POST/PUT update messages.
+app.use((req: Request, res: any, next: any) => {
+  const clientId = req.header("Authorization");
+  console.log(req.body)
+  if(!clientId) {
+    throw new Error("Missing clientId from Authorization header.");
+  }
+  // TODO: IMPORTANT Replace with passport sessions for secure account management and more flexibility
+  if(clientId in clients) {
+    res.locals.clientId = clientId;
+    next();
+  } else {
+    throw new Error("Invalid clientId in Authorization header.");
+  }
+});
+
+// TODO: AUTHENTICATION
+// app.use((req, res, next) => {
+
+// })
+
 
 // ==== REST ROUTES ====
 // TODO: Validation and error handling
