@@ -160,6 +160,8 @@ function broadcastExcludeClient(msg: BroadcastMessage, ignoreClient: WebSocket) 
   }
 }
 
+let updateCounter = 0;
+
 // Once a websocket connection is established, clients will receive other
 // client updates and broadcast updates made from REST through websockets
 // until the client is disconnected.
@@ -205,6 +207,7 @@ app.ws('/', function(ws, req) {
     const {componentId, x, y, width, height} = rawData;
     const updatedObject = {...components[componentId], x, y, width, height}
     components[componentId] = updatedObject;
+    updateCounter++;
     broadcastExcludeClient({...updatedObject, componentId, type: 'update'}, ws);
   });
   // Remove tracked client on disconnect
@@ -213,6 +216,8 @@ app.ws('/', function(ws, req) {
       if(clients[id] === ws) {
         delete clients[id];
         console.log("remove", id);
+        console.log('UPDATES', updateCounter);
+        updateCounter = 0;
         break;
       }
     }
