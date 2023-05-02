@@ -18,9 +18,13 @@ if(!process.env.CLIENT_URL) {
 }
 
 const API_PASSWORD = process.env.API_PASSWORD;
+const API_USERNAME = process.env.API_USERNAME;
 
-if(API_PASSWORD == undefined) {
+if(API_PASSWORD === undefined) {
   throw new Error("Could not locate API_PASSWORD in the env file.");
+}
+if(API_USERNAME === undefined) {
+  throw new Error("Could not locate API_USERNAME in the env file.");
 }
 
 app.use(function setCommonHeaders(req, res, next) {
@@ -219,8 +223,8 @@ app.ws('/', function(ws, req) {
 // TODO (good qol without having to go to a server): Change password. Use DB instead of envs
 // TODO: (less important): disallow admin user, password password, other common insecure logins, and enforce some password quality
 app.post('/auth', (req, res) => {
-  const {password} = req.body;
-  if(password === API_PASSWORD) {
+  const {username, password} = req.body;
+  if(username === API_USERNAME && password === API_PASSWORD) {
     // Assign client ID on authorization
     const clientId = randomUUID();
     clients[clientId] = null;
