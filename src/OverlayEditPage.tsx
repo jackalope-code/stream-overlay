@@ -7,6 +7,9 @@ import WidgetPropertyForms from "./WidgetPropertyForms";
 import { FormikHelpers, FormikValues } from "formik";
 import { useAuth } from "./header-auth";
 import { EditorLoginForm } from "./EditorLoginForm";
+import ToggledViewableField from "./ToggledViewableField";
+import HiddenKeyField from "./HiddenKeyField";
+import { Link, useLocation, useResolvedPath } from "react-router-dom";
 
 const routeUrl = env().routeUrl;
 
@@ -24,9 +27,12 @@ export default function OverlayEditPage() {
   // TODO: IMPORTANT SET FROM OVERLAY REQUEST AND PREVENT NEW CLIENTS OVERRIDING
   const [overlayDimensions, setOverlayDimensions] = useState({width: 1920, height: 1080});
   const [formDimensionData, setFormDimensionData] = useState<{width: number, height: number}>(overlayDimensions);
+  const root = useResolvedPath("..");
 
   // TODO: persist auth and make auth global
-  const {clientId, authenticate} = useAuth();
+  const {clientId, authenticate, credentials} = useAuth();
+
+  const location = useLocation();
 
   // TODO: Form networked update hack
   useEffect(() => {
@@ -98,9 +104,18 @@ export default function OverlayEditPage() {
     formikHelpers.resetForm();
     formikHelpers.setSubmitting(false);
   }
-  
+
+  function getViewUrl(username: string, password: string): string {
+    const tokens = window.location.href.split('/');
+    tokens.pop();
+    const root = tokens.join("/")
+    return `${root}/view/?username=${username}&password=${password}`
+  }
+
   const pageContents = (
   <>
+  {/* `${pathName}/view/?username=${credentials?.username}&password=${credentials?.password}` */}
+    <HiddenKeyField value={getViewUrl(credentials?.username as string, credentials?.password as string)} />
     <form onSubmit={handleOverlayFormSubmit}>
       <label>
         <fieldset>
