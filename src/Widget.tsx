@@ -18,6 +18,7 @@ export interface WidgetProps {
   setComponentData: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   sendMessage: SendMessage;
   type: WidgetType;
+  draggableChildren?: JSX.Element;
 }
 
 export enum WidgetType {
@@ -27,7 +28,7 @@ export enum WidgetType {
 }
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, sendMessage, setComponentData, type}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, sendMessage, setComponentData, type, draggableChildren}) => {
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
@@ -71,13 +72,13 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
         break;
       case WidgetType.Video:
       case WidgetType.Embed:
-        console.log("width", width);
-        console.log("height", height);
         return <iframe width={width} height={height} src={srcUrl} />
         break;
     }
   }
+  
   return (
+    draggableChildren ? (
       <Draggable
         onStart={dragStartHandler}
         onStop={dragStopHandler}
@@ -89,9 +90,29 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
       >
         {/* Text placeholder. Images and videos would go here. of */}
         <div id={id} style={combinedStyling}>
+        {draggableChildren as JSX.Element}
           {renderEmbed()}
         </div>
       </Draggable>
+
+    )
+    :
+    (
+      <Draggable
+      onStart={dragStartHandler}
+      onStop={dragStopHandler}
+      onDrag={dragUpdateHandler}
+      position={{x, y}}
+      disabled={disabled}
+      scale={scale || 1}
+      // bounds={{left: 0, top: 0}}
+    >
+      {/* Text placeholder. Images and videos would go here. of */}
+      <div id={id} style={combinedStyling}>
+        {renderEmbed()}
+      </div>
+    </Draggable>
+    )
   )
 }
 

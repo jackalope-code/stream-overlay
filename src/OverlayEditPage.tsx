@@ -10,6 +10,7 @@ import { EditorLoginForm } from "./EditorLoginForm";
 import ToggledViewableField from "./ToggledViewableField";
 import HiddenKeyField from "./HiddenKeyField";
 import { Link, useLocation, useResolvedPath } from "react-router-dom";
+import { WidgetType } from "./Widget";
 
 const routeUrl = env().routeUrl;
 
@@ -27,12 +28,9 @@ export default function OverlayEditPage() {
   // TODO: IMPORTANT SET FROM OVERLAY REQUEST AND PREVENT NEW CLIENTS OVERRIDING
   const [overlayDimensions, setOverlayDimensions] = useState({width: 1920, height: 1080});
   const [formDimensionData, setFormDimensionData] = useState<{width: number, height: number}>(overlayDimensions);
-  const root = useResolvedPath("..");
 
   // TODO: persist auth and make auth global
   const {clientId, authenticate, credentials} = useAuth();
-
-  const location = useLocation();
 
   // TODO: Form networked update hack
   useEffect(() => {
@@ -112,6 +110,12 @@ export default function OverlayEditPage() {
     return `${root}/view/?username=${username}&password=${password}`
   }
 
+  const controls = {
+    Image: undefined,
+    Embed: undefined,
+    Video: (<div className="cursor">Drag me</div>)
+  }
+
   const pageContents = (
   <>
   {/* `${pathName}/view/?username=${credentials?.username}&password=${credentials?.password}` */}
@@ -169,6 +173,7 @@ export default function OverlayEditPage() {
         scale={editorScale} translateY={editorTranslateY}
         style={{border: "solid red 1px"}}
         clientId={clientId}
+        editorWidgetControls={controls}
       />
     </div>
   </>

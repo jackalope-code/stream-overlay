@@ -19,6 +19,7 @@ export interface OverlayProps {
   setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   clientId: string | undefined;
   // setClientId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  editorWidgetControls?: EditorWidgetControls;
 }
 
 export interface WidgetData {
@@ -42,6 +43,12 @@ export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 export interface WidgetDataMap {
   [key: string]: WidgetData;
 }
+
+type EditorWidgetControls = {
+  'Image': JSX.Element | undefined,
+  'Video': JSX.Element | undefined,
+  'Embed': JSX.Element | undefined
+};
 
 interface UseOverlayProps {
   setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
@@ -88,7 +95,6 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
   }
 
   function updateWidgetBlind(widgetData: WidgetUpdateData, widgetId: string, clientId: string) {
-    console.log("RUN UPDATE " + JSON.stringify(widgetData));
     const widgetUpdateData: WidgetUpdateData = {
       x: widgetData.x,
       y: widgetData.y,
@@ -127,29 +133,6 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
 }
 
 
-const mockData: WidgetDataMap = {
-  "1": {
-    // id: "1",
-    url: "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
-    owner: undefined,
-    moving: false,
-    x: 100,
-    y: 100,
-    width: 100,
-    height: 50
-  },
-  "2": {
-    // id: "2",
-    url: "https://cdn.betterttv.net/emote/61892a1b1f8ff7628e6cf843/3x.webp",
-    owner: undefined,
-    moving: false,
-    x: 200,
-    y: 200,
-    width: 75,
-    height: 75
-  }
-}
-
 const socketUrl = env().socketUrl;
 const routeUrl = env().routeUrl;
 
@@ -157,33 +140,6 @@ type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
 type PromiseReject<T> = PromiseResolve<T>;
 // type PromiseResolve = (value: string | PromiseLike<string>) => void;
 
-class Deferred<T> {
-  resolve: PromiseResolve<T> | undefined;
-  reject: PromiseReject<T> | undefined;
-  promise: Promise<T>;
-
-  constructor() {
-    this.promise = new Promise<T>((resolve, reject) => {
-      this.reject = reject
-      this.resolve = resolve
-    })
-  }
-}
-
-// interface Deferred<T> {
-//   resolve: PromiseResolve<T> | undefined;
-//   reject: PromiseReject<T> | undefined;
-//   promise: Promise<T>; 
-// }
-
-// // eslint-disable-next-line @typescript-eslint/no-redeclare
-// const Deferred = function <T>(this: Deferred<T>) {
-//   var self = this;
-//   this.promise = new Promise(function(resolve, reject) {
-//     self.reject = reject
-//     self.resolve = resolve
-//   })
-// } as any as {new <T>(): Deferred<T>; };
 
 export function useDelayedWebSocket() {
   let connectToUrl = useRef<PromiseResolve<string>>();
@@ -205,7 +161,7 @@ export function useDelayedWebSocket() {
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, style, scale, translateY}: OverlayProps) => {
+const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, style, scale, translateY, editorWidgetControls}: OverlayProps) => {
 
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
@@ -215,27 +171,20 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   // const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   // TODO: DEBUG
-  useEffect(() => {
-    console.log("WIDGET DATA CHANGE");
-    console.log(JSON.stringify(widgetDataMap));
-  }, [widgetDataMap])
-
-  useEffect(() => {
-    console.log("OVERLAY LOADED");
-  }, []);
+  // useEffect(() => {
+  //   console.log("WIDGET DATA CHANGE");
+  //   console.log(JSON.stringify(widgetDataMap));
+  // }, [widgetDataMap])
 
   // Message handling
   useEffect(() => {
     // Message shape should match WSMessage types from the server
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
-      console.log("MESSAGE DATA", messageData)
       if (messageData.type === 'update') {
         const {componentId, x, y, width, height} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
-        console.log(widgetDataMap === objCopy)
         objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height})
-        console.log("SETTER " + JSON.stringify(objCopy[componentId]))
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'add') {
         const {componentId, x, y, width, height, url} = messageData;
@@ -257,17 +206,12 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   useEffect(() => {
     (async () => {
       // TODO: I hate the second check... is there any better way or is this normal hook behavior?
-      console.log("got client ID", clientId);
-      // console.log("delayedConnect", delayedConnect);
+      // console.log("got client ID", clientId);
       if(clientId !== undefined) {
         // Establish WS connection
-        // console.log("establishing delayed WS connection")
         // delayedConnect(`${socketUrl}/${clientId}`);
         // Load and set data from REST
-        console.log("requesting components");
-        console.log(axios.defaults.headers.common);
         const res = await axios.get(`${routeUrl}/components`, /*{headers: {'Authorization': clientId}}*/);
-        console.log("setting data", res.data);
         setWidgetDataMap(res.data);
       }
     })();
@@ -290,7 +234,8 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
           scale={scale || 1}
           owner={owner}
           // TODO: IMPORTANT TYPE
-          type={WidgetType.Image}
+          type={WidgetType.Video}
+          draggableChildren={editorWidgetControls ? editorWidgetControls.Video : undefined}
           />
       )
     }
