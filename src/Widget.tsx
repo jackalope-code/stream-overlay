@@ -13,14 +13,21 @@ export interface WidgetProps {
   y: number;
   width: number;
   height: number;
-  imageUrl: string;
+  srcUrl: string;
   scale?: number;
   setComponentData: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   sendMessage: SendMessage;
+  type: WidgetType;
+}
+
+export enum WidgetType {
+  Image,
+  Video,
+  Embed
 }
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl, scale, sendMessage, setComponentData}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, sendMessage, setComponentData, type}) => {
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
@@ -57,6 +64,19 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
 
   const combinedStyling = {...draggableStyling, ...otherStyling};
 
+  function renderEmbed() {
+    switch(type) {
+      case WidgetType.Image:
+        return <img src={srcUrl} draggable={false} style={{maxWidth: "100%", maxHeight: "100%"}}/>
+        break;
+      case WidgetType.Video:
+      case WidgetType.Embed:
+        console.log("width", width);
+        console.log("height", height);
+        return <iframe width={width} height={height} src={srcUrl} />
+        break;
+    }
+  }
   return (
       <Draggable
         onStart={dragStartHandler}
@@ -69,7 +89,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, imageUrl
       >
         {/* Text placeholder. Images and videos would go here. of */}
         <div id={id} style={combinedStyling}>
-          <img src={imageUrl} draggable={false} style={{maxWidth: "100%", maxHeight: "100%"}}/>
+          {renderEmbed()}
         </div>
       </Draggable>
   )

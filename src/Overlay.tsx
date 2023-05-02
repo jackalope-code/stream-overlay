@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState } from 'react';
-import Widget from './Widget';
+import Widget, { WidgetType } from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData, env } from './utils';
 import axios, { AxiosResponse } from 'axios';
@@ -285,10 +285,13 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
           sendMessage={sendMessage}
           x={x} y={y}
           width={width} height={height}
-          imageUrl={url}
+          srcUrl={url}
           moving={moving}
           scale={scale || 1}
-          owner={owner}/>
+          owner={owner}
+          // TODO: IMPORTANT TYPE
+          type={WidgetType.Image}
+          />
       )
     }
     return elements;
