@@ -51,7 +51,7 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
-- Web embeds (video and other iframe) are laggy and require additional drag logic. Drag handles are bad. Might have to disable interactivity on drag.
+- Can't drag through. Add toggleable activity on active embeds.
 - Refresh clears auth
 - Incorrect editor auth fails silently. Overlay view may be ok.
 - State management is fucked up.
@@ -90,6 +90,7 @@ https://react.dev/reference/react
   - Sanity checks on API/client communication (look for ghost ID bug)
   - Remove log statements
   - Make update wait time a client env var and server env var and enforce update wait time from the server
+  - Animate intermittant updates.
 - Implement release tagging
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
