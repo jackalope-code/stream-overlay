@@ -53,6 +53,7 @@ https://react.dev/reference/react
 ## Issues
 - Can't drag through. Add toggleable activity on active embeds.
 - Refresh clears auth
+- Delete on disconnect shows delete locally when it shouldn't (nothing is happening and there is a disconnect state)
 - Incorrect editor auth fails silently. Overlay view may be ok.
 - State management is fucked up.
 - http://localhost:4000/?username=[user]&password=[pass] should be guarded, not an invalid credential method. Guard routes and params. (not the port)
@@ -77,14 +78,25 @@ https://react.dev/reference/react
 
 ## Remaining work
 * Support videos w/ realtime sync
-  - Broadcast play/pause, timesync on load, resync from server on drag.
+  - Current progress
+    - Add works locally
+    - Nothing is synced
+      - Sync REST POST, PUT
+  - Hook into player
+    - Detect play/pause
+    - Detect timeskips
+  - Sync video timeskip updates over rate limited WS (enforce server side later)
+  - Toggle title, channel, buttons?
   - Ensure videos play through without restarting
   - Ensure videos are roughly in sync so that there aren't noticeable differences between editor/broadcaster screens.
 - Find a good approach for always on deployment (Docker + NGINX... split repo into client/api?)
 - Various fixes
+  - Allow drag over embeds
   - Add confirm dialogue for overlay resize
   - Truncate numbers on the server side
-  - Add form should clear out on submit and have proper validators. Empty shit should not get added from client/server sides
+  - Add form should clear out on submit and have proper validators. 
+    - Clear fields properly
+    - Empty shit should not get added from client/server sides
   - Validation and testing on forms and endpoints, w/ proper error handling
   - Set up env vars that work for now for build/dev and revisit later
   - Sanity checks on API/client communication (look for ghost ID bug)
@@ -100,8 +112,9 @@ https://react.dev/reference/react
 - 0.9 CHECKPOINT: Publish, merge, and branch
 - Revisit the GUI
 - Save/import collections somehow? (User account sessions)
-- Add server persistance?
-  - Redis?
+- Add server persistance
+  - Current state and accounts
+  - Redis? Postgres?
 - Work on testing, security and stability
   - UI and server side validators, secure typing
     - Forms
