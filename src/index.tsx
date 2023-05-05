@@ -13,7 +13,7 @@ const router = createHashRouter([
     element: <App />
   },
   {
-    path: "editor",
+    path: "edit",
     element: <OverlayEditPage />
   },
   {

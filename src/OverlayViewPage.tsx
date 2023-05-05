@@ -32,6 +32,23 @@ const OverlayViewPage = () => {
     return <h2 style={{color: "red"}}>Not authenticated. {errorMessage}</h2>
   }
 
+  useEffect(() => {
+    var simulateMouseEvent = function(element: any, eventName: any, coordX: any, coordY:any) {
+      element.dispatchEvent(new MouseEvent(eventName, {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: coordX,
+        clientY: coordY,
+        button: 0
+      }));
+    };
+    
+    
+    simulateMouseEvent (document, "mousedown", 0, 0);
+    simulateMouseEvent (document, "mouseup", 0, 0);
+    simulateMouseEvent (document, "click", 0, 0);
+  })
   return (
     clientId !== undefined ?
       <Overlay
@@ -41,6 +58,7 @@ const OverlayViewPage = () => {
         setDimensions={setOverlayDimensions}
         clientId={clientId}
         style={{overflow: "hidden"}}
+        isView={true}
       />
       :
       <>

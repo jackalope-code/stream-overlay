@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { MouseEventHandler, useCallback, useState } from 'react';
+import { CSSProperties, MouseEventHandler, useCallback, useEffect, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { SendMessage } from 'react-use-websocket';
-import { WidgetData, WidgetDataMap } from './Overlay';
+import { WidgetData, WidgetDataMap, startTimeToOffset } from './Overlay';
 import { copyAllWidgetData } from './utils';
-import { RateLimiter } from "limiter";
 import { debounce, throttle } from 'lodash';
+import {Youtube} from "./Youtube";
+import YouTube from "react-youtube";
 
-const dragUpdateLimiter = new RateLimiter({tokensPerInterval: 1, interval: 50});
 
 export interface WidgetProps {
   id: string;
@@ -22,7 +22,9 @@ export interface WidgetProps {
   setComponentData: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   sendMessage: SendMessage;
   type: WidgetType;
+  startTime?: number; 
   draggableChildren?: JSX.Element;
+  isOverlayView: boolean;
 }
 
 export enum WidgetType {
@@ -35,12 +37,22 @@ export enum WidgetType {
 const UPDATE_WAIT_TIME = 50;
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, sendMessage, setComponentData, type, draggableChildren}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, startTime, sendMessage, setComponentData, type, draggableChildren, isOverlayView}) => {
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [active, setActive] = useState(false);
   
+  // useEffect(() => {
+  //   if(youtube) {
+  //     console.log("YOUTUBE", youtube);
+  //     console.log((youtube as any).Player.getDuration());
+
+  //   }
+  //   console.log("PLAN B", window.YT)
+  // }, []);
+
   const dragStartHandler: DraggableEventHandler = (e, data) => {
     // console.log("Drag start");
   }
@@ -60,7 +72,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
   }, UPDATE_WAIT_TIME), []);
 
   const dragUpdateHandler: DraggableEventHandler = (e, data) => {
-    e.stopPropagation();
+    // e.stopPropagation();
     setDragging(true);
     setComponentData((prevState) => {
       const objCopy = copyAllWidgetData(prevState);
@@ -89,15 +101,102 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
 
   const combinedStyling = {...draggableStyling, ...otherStyling};
 
+  function wrapActiveToggle(iframe: JSX.Element) {
+    return (
+    <div style={{display: "absolute"}}>
+      {iframe}
+      <div style={{width: "100%", height: "100%", background: "rgba(255, 150, 150, 0.8)", pointerEvents: "none", position: "relative"}} />
+    </div>
+    );
+  }
+
+  // const frameContainerStyle: CSSProperties = {
+  //   position: "relative",
+  //   paddingBottom: "56.25%", /* 16:9 */  
+  //   paddingTop: "25px",
+  //   width: "300%", /* enlarge beyond browser width */
+  //   left: "-100%" /* center */
+  // }
+
+  // const frameContainerIframeStyle: CSSProperties = {
+  //   position: "absolute",
+  //   top: 0,
+  //   left: 0, 
+  //   width: "100%", 
+  //   height: "100%"
+
+  // }
+
+  // const wrapperStyle = {
+  //   overflow: "hidden",
+  //   maxWidth: "100%"
+  //}
+
+  function onYoutubePlayerChange() {
+    console.log("Youtube player changed.")
+  }
+
   function renderEmbed() {
-    switch(type) {
-      case WidgetType.Image:
-        return <img src={srcUrl} draggable={false} style={{maxWidth: "100%", maxHeight: "100%"}}/>
-        break;
-      case WidgetType.Video:
+    switch(WidgetType.Embed) {
       case WidgetType.Embed:
-        return <iframe width={width} height={height} src={srcUrl} draggable="false" style={{pointerEvents: dragging ? 'none' : 'auto'}}/>
-        break;
+        // Default to 0 if the offset is missing
+        // const offsetSeconds = startTime ? startTimeToOffset(startTime) : 0;
+        let offsetSeconds = 6;
+        const timedUrl = `${srcUrl}?autoplay=1&enablejsapi=1&controls=1&start=${offsetSeconds}`
+        // const embed = <iframe style={frameContainerIframeStyle} allow="autoplay" draggable="false" onDragStart={() => false} width={width} height={height} src={timedUrl} />
+
+        // TODO: CURRENT
+        //const embed = <iframe  allow="autoplay" draggable="false" onDragStart={() => false} width={width} height={height} src={timedUrl} style={{pointerEvents: dragging ? 'none' : 'auto'}}/>
+
+        // if(srcUrl.includes('/embed/')) {
+
+        // }
+
+        const videoId = srcUrl.split("/embed/").pop()?.split("?")[0];
+        const embed = <Youtube
+          disableMouseEvents={dragging}
+          srcUrl={srcUrl}
+          playerId={id}
+          width={width}
+          height={height}
+          videoId={videoId as string}
+          startTime={offsetSeconds}
+          onPlayerStateChange={onYoutubePlayerChange}
+          showAsView={isOverlayView}
+        />
+
+        function handleReady(event: any) {
+          event.target.playVideo();
+          console.log("player ready");
+        }
+
+        // TODO: Check for properly formatted URL
+        // const videoId = srcUrl.split("/embed/").pop()?.split("?")[0];
+        // const opts = {
+        //   width,
+        //   height,
+        //   start: offsetSeconds,
+        //   playerVars: {
+        //     autoplay: 1
+        //   }
+        // }
+        // const embed = <YouTube
+        //   videoId={videoId}
+        //   id={`youtube-player:${id}`}
+        //   opts={opts}
+        //   // width={width}
+        //   // height={height}
+        //   onReady={handleReady}
+
+        // />
+
+        // const embed = <iframe width={width} height={height} src={srcUrl} draggable="false" />;
+        // if(active) {
+        //   return embed;
+        // } else {
+        //   return wrapActiveToggle(embed);
+        // }
+        return embed;
     }
   }
 
@@ -113,8 +212,8 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
         // bounds={{left: 0, top: 0}}
       >
         {/* Text placeholder. Images and videos would go here. of */}
-        <div id={id} style={combinedStyling}>
-        {draggableChildren as JSX.Element}
+        <div id={id} style={{...combinedStyling, transition: "transform 1s;"}}>
+          {draggableChildren as JSX.Element}
           {renderEmbed()}
         </div>
       </Draggable>

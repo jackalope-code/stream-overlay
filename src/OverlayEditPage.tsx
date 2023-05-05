@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
-import Overlay, { UseOverlayHelpers, WidgetData, WidgetDataMap, useOverlay } from "./Overlay";
+import Overlay, { UseOverlayHelpers, WidgetData, WidgetDataMap, offsetToStartTime, useOverlay } from "./Overlay";
 import { env } from "./utils";
 import WidgetFieldForm from "./WidgetFieldForm";
 import WidgetPropertyForms from "./WidgetPropertyForms";
@@ -87,6 +87,8 @@ export default function OverlayEditPage() {
   }
 
   function handleAddWidgetFieldForm(values: FormikValues, formikHelpers: FormikHelpers<FormikValues>): void | Promise<any> {
+    
+    console.log("FORM SUBMIT: raw offset", values.offset, "TRANSFORMED", offsetToStartTime(values.offset))
     if(values !== undefined && helpers.addWidget && clientId) {
       const widget: WidgetData = {
         x: values.xInput,
@@ -94,7 +96,8 @@ export default function OverlayEditPage() {
         width: values.widthInput,
         height: values.heightInput,
         url: values.urlInput,
-        moving: false
+        moving: false,
+        startTime: offsetToStartTime(values.offset)
       }
       helpers.addWidget(widget, clientId);
     }
@@ -103,6 +106,8 @@ export default function OverlayEditPage() {
     formikHelpers.setSubmitting(false);
   }
 
+  // TODO: First use case with JWT (persisted username and password in a token with unique accounts)
+  // Shouldn't be used from the browser. Only paste the URL into OBS or other platforms as a browser source.
   function getViewUrl(username: string, password: string): string {
     const tokens = window.location.href.split('/');
     tokens.pop();
@@ -112,7 +117,7 @@ export default function OverlayEditPage() {
 
   const controls = {
     Image: undefined,
-    Embed: undefined,
+    Embed: (<div className="cursor">Drag me</div>),
     Video: (<div className="cursor">Drag me</div>)
   }
 
@@ -174,6 +179,7 @@ export default function OverlayEditPage() {
         style={{border: "solid red 1px"}}
         clientId={clientId}
         editorWidgetControls={controls}
+        isView={false}
       />
     </div>
   </>

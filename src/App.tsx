@@ -8,7 +8,7 @@ import './body-transparency.css'
 function App() {
   return (
     <>
-      <button><Link to="editor">Editor</Link></button>
+      <button><Link to="edit">Editor</Link></button>
       <button><Link to="view">View overlay</Link></button>
     </>
   );

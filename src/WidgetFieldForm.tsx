@@ -1,7 +1,7 @@
 // import styled from 'styled-components';
 
 import axios from "axios";
-import { WidgetData, WidgetDataMap } from "./Overlay";
+import { WidgetData, WidgetDataMap, startTimeToOffset } from "./Overlay";
 import { copyAllWidgetData, env } from "./utils";
 import { Field, Form, Formik } from "formik";
 import { FormikValues, FormikHelpers } from "formik/dist/types";
@@ -104,7 +104,8 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
       yInput: data.y,
       urlInput: data.url,
       widthInput: data.width,
-      heightInput: data.height
+      heightInput: data.height,
+      offset: data.startTime ? startTimeToOffset(data.startTime) : 0
     }
   }
 
@@ -155,6 +156,10 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
         <label>
           Height:
           <Field type="number" name="heightInput" />
+        </label>
+        <label>
+          Start time (seconds):
+          <Field type="number" name="offset" />
         </label>
         <label>
           Visible:

@@ -3,6 +3,7 @@ import Widget, { WidgetType } from './Widget';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData, env } from './utils';
 import axios, { AxiosResponse } from 'axios';
+import { YoutubeAPIProvider } from './Youtube';
 
 export interface Dimensions {
   width: number;
@@ -20,6 +21,7 @@ export interface OverlayProps {
   clientId: string | undefined;
   // setClientId: React.Dispatch<React.SetStateAction<string | undefined>>;
   editorWidgetControls?: EditorWidgetControls;
+  isView: boolean;
 }
 
 export interface WidgetData {
@@ -30,6 +32,8 @@ export interface WidgetData {
   height: number;
   moving: boolean;
   owner?: string;
+  // TODO: make optional later
+  startTime?: number; 
 }
 
 export interface WidgetUpdateData {
@@ -37,6 +41,7 @@ export interface WidgetUpdateData {
   y: number;
   width: number;
   height: number;
+  startTime?: number;
 }
 
 export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
@@ -70,6 +75,14 @@ export interface UseOverlayState {
 
 export type UseOverlay = [UseOverlayState, UseOverlayHelpers];
 
+export function offsetToStartTime(offsetSeconds: number): number {
+  return Math.round(Date.now() / 1000 + offsetSeconds);
+}
+
+export function startTimeToOffset(startTimeSeconds: number): number {
+  return Math.round((startTimeSeconds * 1000 - Date.now())/1000);
+}
+
 export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>): UseOverlayHelpers {
   function addNewAndBlindUpdate(widgetData: WidgetData, clientId: string) {
     const newWidget = {
@@ -77,7 +90,8 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
       x: widgetData.x,
       y: widgetData.y,
       width: widgetData.width,
-      height: widgetData.height
+      height: widgetData.height,
+      startTime: widgetData.startTime
     }
     console.log('Add', newWidget);
     // TODO: error handling if not connected to WS client
@@ -99,7 +113,8 @@ export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction
       x: widgetData.x,
       y: widgetData.y,
       width: widgetData.width,
-      height: widgetData.height
+      height: widgetData.height,
+      startTime: widgetData.startTime
     }
     // TODO: error handling if not connected to WS client
     if(!clientId) {
@@ -161,7 +176,7 @@ export function useDelayedWebSocket() {
 
 // Networked overlay that contains the state of all the draggable objects inside of it,
 // as well as managing websocket updates to and from the server.
-const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, style, scale, translateY, editorWidgetControls}: OverlayProps) => {
+const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, clientId, style, scale, translateY, editorWidgetControls, isView}: OverlayProps) => {
 
   // React Hook WebSocket library for now because I'm lazy.
   // sendMessage: Function that sends message data to the server across the websocket connection
@@ -182,14 +197,14 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
       if (messageData.type === 'update') {
-        const {componentId, x, y, width, height} = messageData;
+        const {componentId, x, y, width, height, startTime} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
-        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height})
+        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height, startTime})
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'add') {
-        const {componentId, x, y, width, height, url} = messageData;
+        const {componentId, x, y, width, height, url, startTime} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
-        objCopy[componentId] = {x, y, width, height, url, moving: false};
+        objCopy[componentId] = {x, y, width, height, url, startTime, moving: false};
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'delete') {
         const objCopy = copyAllWidgetData(widgetDataMap);
@@ -236,6 +251,8 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
           // TODO: IMPORTANT TYPE
           type={WidgetType.Video}
           draggableChildren={editorWidgetControls ? editorWidgetControls.Video : undefined}
+          startTime={widgetData.startTime}
+          isOverlayView={isView}
           />
       )
     }
@@ -250,8 +267,10 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
     position: "relative",
   }
   return (
-    <div style={{...style, ...overlayStyling}}>
-      {generateWidgets(widgetDataMap)}
+    <div autoFocus style={{...style, ...overlayStyling}}>
+      <YoutubeAPIProvider>
+        {generateWidgets(widgetDataMap)}
+      </YoutubeAPIProvider>
     </div>
   )
 }
