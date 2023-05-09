@@ -24,6 +24,12 @@ export interface OverlayProps {
   isView: boolean;
 }
 
+export interface VideoData {
+  timeElapsed: number;
+  playing: boolean;
+  loop: boolean;
+}
+
 export interface WidgetData {
   url: string;
   x: number;
@@ -32,19 +38,22 @@ export interface WidgetData {
   height: number;
   moving: boolean;
   owner?: string;
-  // TODO: make optional later
-  startTime?: number; 
+  type: "image" | "video" | "embed";
+  videoData?: VideoData;
 }
 
-export interface WidgetUpdateData {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  startTime?: number;
-}
+export interface WidgetUpdateData extends Omit<WidgetData, 'url'> {};
 
-export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
+// export interface WidgetUpdateData {
+//   x: number;
+//   y: number;
+//   width: number;
+//   height: number;
+//   startTime?: number;
+// }
+
+export type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
+
 export interface WidgetDataMap {
   [key: string]: WidgetData;
 }
@@ -85,44 +94,29 @@ export function startTimeToOffset(startTimeSeconds: number): number {
 
 export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>): UseOverlayHelpers {
   function addNewAndBlindUpdate(widgetData: WidgetData, clientId: string) {
-    const newWidget = {
-      url: widgetData.url,
-      x: widgetData.x,
-      y: widgetData.y,
-      width: widgetData.width,
-      height: widgetData.height,
-      startTime: widgetData.startTime
-    }
-    console.log('Add', newWidget);
+    console.log('Add', widgetData);
     // TODO: error handling if not connected to WS client
     if(!clientId) {
       throw new Error("Error connecting to server");
     } else {
       (async () => {
-        const res = await axios.post(`${routeUrl}/component`, {...newWidget})
+        const res = await axios.post(`${routeUrl}/component`, {...widgetData})
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),
-          ...{[res.data.componentId]: newWidget}
+          ...{[res.data.componentId]: widgetData}
         }));
       })();
     }
   }
 
   function updateWidgetBlind(widgetData: WidgetUpdateData, widgetId: string, clientId: string) {
-    const widgetUpdateData: WidgetUpdateData = {
-      x: widgetData.x,
-      y: widgetData.y,
-      width: widgetData.width,
-      height: widgetData.height,
-      startTime: widgetData.startTime
-    }
     // TODO: error handling if not connected to WS client
     if(!clientId) {
       throw new Error("Error connecting to server");
     } else {
       (async () => {
-        const res = await axios.put(`${routeUrl}/component/${widgetId}`, {...widgetUpdateData})
-        const newWidget: WidgetData = {...widgetUpdateData, moving: false, url: res.data.url};
+        const res = await axios.put(`${routeUrl}/component/${widgetId}`, {...widgetData})
+        const newWidget: WidgetData = {...widgetData, moving: false, url: res.data.url};
         setWidgetDataMap(data => ({
           ...copyAllWidgetData(data),
           ...{[res.data.componentId]: newWidget}
@@ -197,14 +191,14 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
     if (lastMessage !== null) {
       const messageData = JSON.parse(lastMessage.data);
       if (messageData.type === 'update') {
-        const {componentId, x, y, width, height, startTime} = messageData;
+        const {componentId, x, y, width, height, startTime, type, videoData} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
-        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height, startTime})
+        objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height, startTime, type, videoData})
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'add') {
-        const {componentId, x, y, width, height, url, startTime} = messageData;
+        const {componentId, x, y, width, height, url, type, videoData} = messageData;
         const objCopy = copyAllWidgetData(widgetDataMap);
-        objCopy[componentId] = {x, y, width, height, url, startTime, moving: false};
+        objCopy[componentId] = {x, y, width, height, url, moving: false, type, videoData};
         setWidgetDataMap(objCopy);
       } else if(messageData.type === 'delete') {
         const objCopy = copyAllWidgetData(widgetDataMap);
@@ -236,7 +230,7 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   const generateWidgets = (data: WidgetDataMap) => {
     const elements = []
     for(let [id, widgetData] of Object.entries(data)) {
-      const {x, y, width, height, moving, owner, url} = widgetData;
+      const {x, y, width, height, moving, owner, url, videoData} = widgetData;
       elements.push(
         <Widget
           id={id}
@@ -251,7 +245,7 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
           // TODO: IMPORTANT TYPE
           type={WidgetType.Video}
           draggableChildren={editorWidgetControls ? editorWidgetControls.Video : undefined}
-          startTime={widgetData.startTime}
+          videoData={videoData || undefined}
           isOverlayView={isView}
           />
       )

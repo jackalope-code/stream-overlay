@@ -97,7 +97,8 @@ export default function OverlayEditPage() {
         height: values.heightInput,
         url: values.urlInput,
         moving: false,
-        startTime: offsetToStartTime(values.offset)
+        type: values.type,
+        videoData: {playing: values.startPlaying, timeElapsed: values.startTime, loop: values.loop},
       }
       helpers.addWidget(widget, clientId);
     }

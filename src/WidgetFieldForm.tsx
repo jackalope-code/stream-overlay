@@ -108,6 +108,7 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
       startTime: data.videoData ? data.videoData.timeElapsed : 0,
       startPlaying: data.videoData ? data.videoData.playing : 'false',
       loop: data.videoData ? data.videoData.loop : 'false',
+      type: data.type
     }
   } else {
     initialValues = {
@@ -118,7 +119,8 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
       heightInput : "",
       startTime: 0,
       startPlaying: "false",
-      loop: "false"
+      loop: "false",
+      type: ""
     }
   }
 
@@ -169,6 +171,10 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
         <label>
           Height:
           <Field type="number" name="heightInput" />
+        </label>
+        <label>
+          Type (code relevant params behind this.. image|video|embed):
+          <Field type="text" name="type" />
         </label>
         <label>
           Start time (seconds):

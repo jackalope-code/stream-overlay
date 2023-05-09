@@ -2,7 +2,7 @@ import axios from 'axios';
 import { CSSProperties, MouseEventHandler, useCallback, useEffect, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { SendMessage } from 'react-use-websocket';
-import { WidgetData, WidgetDataMap, startTimeToOffset } from './Overlay';
+import { VideoData, WidgetData, WidgetDataMap, startTimeToOffset } from './Overlay';
 import { copyAllWidgetData } from './utils';
 import { debounce, throttle } from 'lodash';
 import {Youtube} from "./Youtube";
@@ -11,6 +11,13 @@ import YouTube from "react-youtube";
 
 export interface WidgetProps {
   id: string;
+  // owner?: string;
+  // moving: boolean;
+  // x: number;
+  // y: number;
+  // width: number;
+  // height: number;
+  // srcUrl: string;
   owner?: string;
   moving: boolean;
   x: number;
@@ -18,11 +25,12 @@ export interface WidgetProps {
   width: number;
   height: number;
   srcUrl: string;
+
   scale?: number;
   setComponentData: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   sendMessage: SendMessage;
   type: WidgetType;
-  startTime?: number; 
+  videoData?: VideoData; 
   draggableChildren?: JSX.Element;
   isOverlayView: boolean;
 }
@@ -37,10 +45,16 @@ export enum WidgetType {
 const UPDATE_WAIT_TIME = 50;
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, startTime, sendMessage, setComponentData, type, draggableChildren, isOverlayView}) => {
+const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, videoData, sendMessage, setComponentData, type, isOverlayView, draggableChildren}) => {
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
+  
+  function buildWidget(x: number, y: number) {
+    return {componentId: id, x, y, width, height}
+  }
+
+ 
   const [dragging, setDragging] = useState(false);
   const [active, setActive] = useState(false);
   
@@ -61,10 +75,6 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
     // console.log("Drag stop");
     setDragging(false);
     sendDragUpdate(buildWidget(data.x, data.y))
-  }
-
-  function buildWidget(x: number, y: number) {
-    return {componentId: id, x, y, width, height}
   }
 
   const sendDragUpdate = useCallback(throttle((widgetData: {x: number, y: number}) => {
@@ -110,27 +120,6 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
     );
   }
 
-  // const frameContainerStyle: CSSProperties = {
-  //   position: "relative",
-  //   paddingBottom: "56.25%", /* 16:9 */  
-  //   paddingTop: "25px",
-  //   width: "300%", /* enlarge beyond browser width */
-  //   left: "-100%" /* center */
-  // }
-
-  // const frameContainerIframeStyle: CSSProperties = {
-  //   position: "absolute",
-  //   top: 0,
-  //   left: 0, 
-  //   width: "100%", 
-  //   height: "100%"
-
-  // }
-
-  // const wrapperStyle = {
-  //   overflow: "hidden",
-  //   maxWidth: "100%"
-  //}
 
   function onYoutubePlayerChange() {
     console.log("Youtube player changed.")
@@ -152,6 +141,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
 
         // }
 
+        // TODO: IMPORTANT: ADD OTHER VIDEO DATA COMPONENTS... PLAYING AND LOOP
         const videoId = srcUrl.split("/embed/").pop()?.split("?")[0];
         const embed = <Youtube
           disableMouseEvents={dragging}
@@ -160,7 +150,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
           width={width}
           height={height}
           videoId={videoId as string}
-          startTime={offsetSeconds}
+          startTime={videoData ? videoData.timeElapsed : undefined}
           onPlayerStateChange={onYoutubePlayerChange}
           showAsView={isOverlayView}
         />
@@ -217,7 +207,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
           {renderEmbed()}
         </div>
       </Draggable>
-
+  
     )
     :
     (
@@ -235,6 +225,8 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
         {renderEmbed()}
       </div>
     </Draggable>
+  
+
     )
   )
 }

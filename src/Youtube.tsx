@@ -64,7 +64,7 @@ interface YoutubeProps {
   videoId: string;
   playerVars?: any;
   onPlayerStateChange: any;
-  startTime: number;
+  startTime?: number;
   showAsView: boolean;
 }
 
