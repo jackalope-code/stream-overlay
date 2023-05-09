@@ -51,6 +51,7 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
+- Video length must be specified unless there is API integration with a cache
 - Confirm show key UI component state updating is weirdly bugged
 - Navigation to query URL doesnt work on initial page load and requires refresh at least on dev server without strict mode.
 - Can't drag through. Add toggleable activity on active embeds or otherwise resolve mouse event issues.
