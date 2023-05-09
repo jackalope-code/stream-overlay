@@ -51,9 +51,11 @@ Reference for useEffect, useState, and other React hooks
 https://react.dev/reference/react
 
 ## Issues
-- Can't drag through. Add toggleable activity on active embeds.
-- Refresh clears auth
-- Delete on disconnect shows delete locally when it shouldn't (nothing is happening and there is a disconnect state)
+- Confirm show key UI component state updating is weirdly bugged
+- Navigation to query URL doesnt work on initial page load and requires refresh at least on dev server without strict mode.
+- Can't drag through. Add toggleable activity on active embeds or otherwise resolve mouse event issues.
+- Refresh clears auth.
+- Delete from disconnect state shows delete locally when it shouldn't (nothing is happening and there is a disconnect state)
 - Incorrect editor auth fails silently. Overlay view may be ok.
 - State management is fucked up.
 - http://localhost:4000/?username=[user]&password=[pass] should be guarded, not an invalid credential method. Guard routes and params. (not the port)
@@ -103,6 +105,7 @@ https://react.dev/reference/react
   - Remove log statements
   - Make update wait time a client env var and server env var and enforce update wait time from the server
   - Animate intermittant updates.
+  - Server guards
 - Implement release tagging
 - Revisit build process
   - Build and serve site with VPS NGINX on a Droplet, GitHub Pages, Gatsby, Netlify, etc. Pick one for now.
