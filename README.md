@@ -80,6 +80,14 @@ https://react.dev/reference/react
       Something is getting duplicated and not sent back with urls.
 
 ## Remaining work
+- Integrate new client params with the server
+- Support time sync updates between client/server over REST and WS
+- Support play/pause and time sync updates between client/server over REST and WS
+- Add video length field, video length to videoData in client and server params, implement looping behavior w/ videos on the app.
+- Bugfixes and deployment setup
+- Forms for usability
+- Drag and drop URL source behavior
+- Continue UI/UX, state management, usability/reusability
 * Support videos w/ realtime sync
   - Current progress
     - Add works locally
