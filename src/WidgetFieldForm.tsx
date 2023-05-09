@@ -105,7 +105,20 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
       urlInput: data.url,
       widthInput: data.width,
       heightInput: data.height,
-      offset: data.startTime ? startTimeToOffset(data.startTime) : 0
+      startTime: data.videoData ? data.videoData.timeElapsed : 0,
+      startPlaying: data.videoData ? data.videoData.playing : 'false',
+      loop: data.videoData ? data.videoData.loop : 'false',
+    }
+  } else {
+    initialValues = {
+      xInput: 0,
+      yInput: 0,
+      urlInput: "",
+      widthInput: "",
+      heightInput : "",
+      startTime: 0,
+      startPlaying: "false",
+      loop: "false"
     }
   }
 
@@ -159,7 +172,15 @@ export default function WidgetFieldForm({data, widgetId, buttonType, handleFormS
         </label>
         <label>
           Start time (seconds):
-          <Field type="number" name="offset" />
+          <Field type="number" name="startTime" />
+        </label>
+        <label>
+          Starting playing(toggle):
+          <Field type="text" name="startPlaying" />
+        </label>
+        <label>
+          Loop (toggle):
+          <Field type="text" name="loop" />
         </label>
         <label>
           Visible:
