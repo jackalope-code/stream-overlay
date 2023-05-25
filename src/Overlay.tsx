@@ -4,6 +4,8 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { copyAllWidgetData, env } from './utils';
 import axios, { AxiosResponse } from 'axios';
 import { YoutubeAPIProvider } from './Youtube';
+import { object, string, number, date, InferType, boolean, lazy, mixed, ref } from 'yup';
+
 
 export interface Dimensions {
   width: number;
@@ -30,7 +32,7 @@ export interface VideoData {
   loop: boolean;
 }
 
-export interface WidgetData {
+interface IWidget {
   url: string;
   x: number;
   y: number;
@@ -38,9 +40,25 @@ export interface WidgetData {
   height: number;
   moving: boolean;
   owner?: string;
-  type: "image" | "video" | "embed";
-  videoData?: VideoData;
+  type: string;
 }
+
+export interface WidgetEvent {
+  data: WidgetData;
+  event: string;
+}
+
+export interface StaticWidgetData extends IWidget {
+  type: "image" | "embed";
+  videoData: never;
+}
+
+export interface VideoWidgetData extends IWidget {
+  type: "video";
+  videoData: VideoData
+}
+
+export type WidgetData = StaticWidgetData | VideoWidgetData;
 
 export interface WidgetUpdateData extends Omit<WidgetData, 'url'> {};
 
@@ -91,6 +109,51 @@ export function offsetToStartTime(offsetSeconds: number): number {
 export function startTimeToOffset(startTimeSeconds: number): number {
   return Math.round((startTimeSeconds * 1000 - Date.now())/1000);
 }
+
+export interface VideoData {
+  timeElapsed: number;
+  playing: boolean;
+  loop: boolean;
+}
+
+const requiredNonNegativeInt = number().required().integer().min(0, '');
+
+const videoUpdatePartial = object({
+  startTime: requiredNonNegativeInt,
+  playing: boolean().required(),
+  loop: boolean().required(),
+});
+
+const videoUpdateMessage = videoUpdatePartial.shape({
+  id: number().required().positive()
+})
+
+const updateMessage = object({
+  id: number().required().positive(),
+  event: string().required().oneOf(['update']),
+  x: requiredNonNegativeInt,
+  y: requiredNonNegativeInt,
+  width: requiredNonNegativeInt,
+  height: requiredNonNegativeInt,
+});
+
+// otherwise: object().notRequired(),
+const addMessage = updateMessage.concat(
+  object().shape({
+    // TODO: restrict to youtube for videos
+   url: string().required(),
+   event: string().required().oneOf(['add']),
+   type: string().required().oneOf(['image', 'video']),
+   videoData: object().when('type', {
+    is: 'video',
+    then: schema => videoUpdatePartial,
+  }),
+}))
+
+// TODO
+const messageEditorChangeSchema = object({
+
+});
 
 export function useOverlay(setWidgetDataMap: React.Dispatch<React.SetStateAction<WidgetDataMap>>): UseOverlayHelpers {
   function addNewAndBlindUpdate(widgetData: WidgetData, clientId: string) {
@@ -189,23 +252,24 @@ const Overlay = ({dimensions, setDimensions, widgetDataMap, setWidgetDataMap, cl
   useEffect(() => {
     // Message shape should match WSMessage types from the server
     if (lastMessage !== null) {
-      const messageData = JSON.parse(lastMessage.data);
-      if (messageData.type === 'update') {
-        const {componentId, x, y, width, height, startTime, type, videoData} = messageData;
+      const messageEvent: WidgetEvent = JSON.parse(lastMessage.data);
+
+      if (messageEvent.event === 'update') {
+        const {componentId, x, y, width, height, startTime, type, videoData} = messageEvent.data;
         const objCopy = copyAllWidgetData(widgetDataMap);
         objCopy[componentId] = Object.assign(objCopy[componentId], {x, y, width, height, startTime, type, videoData})
         setWidgetDataMap(objCopy);
-      } else if(messageData.type === 'add') {
-        const {componentId, x, y, width, height, url, type, videoData} = messageData;
+      } else if(messageEvent.event === 'add') {
+        const {componentId, x, y, width, height, url, type, videoData} = messageEvent.data;
         const objCopy = copyAllWidgetData(widgetDataMap);
         objCopy[componentId] = {x, y, width, height, url, moving: false, type, videoData};
         setWidgetDataMap(objCopy);
-      } else if(messageData.type === 'delete') {
+      } else if(messageEvent.event === 'delete') {
         const objCopy = copyAllWidgetData(widgetDataMap);
-        delete objCopy[messageData.componentId];
+        delete objCopy[messageEvent.componentId];
         setWidgetDataMap(objCopy);
-      } else if(messageData.type === 'overlay') {
-        const {width, height} = messageData;
+      } else if(messageEvent.event === 'overlay') {
+        const {width, height} = messageEvent;
         setDimensions({width, height});
       }
     }
