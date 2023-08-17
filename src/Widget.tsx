@@ -11,28 +11,13 @@ import YouTube from "react-youtube";
 
 export interface WidgetProps {
   id: string;
-  // owner?: string;
-  // moving: boolean;
-  // x: number;
-  // y: number;
-  // width: number;
-  // height: number;
-  // srcUrl: string;
-  owner?: string;
-  moving: boolean;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  srcUrl: string;
 
   scale?: number;
   setComponentData: React.Dispatch<React.SetStateAction<WidgetDataMap>>;
   sendMessage: SendMessage;
-  type: WidgetType;
-  videoData?: VideoData; 
   draggableChildren?: JSX.Element;
   isOverlayView: boolean;
+  data: WidgetData;
 }
 
 export enum WidgetType {
@@ -45,7 +30,8 @@ export enum WidgetType {
 const UPDATE_WAIT_TIME = 50;
 
 // Draggable widgets managed by the Overlay component. Uses the react-draggable npm package to manage dragging logic.
-const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, scale, videoData, sendMessage, setComponentData, type, isOverlayView, draggableChildren}) => {
+const Widget: React.FC<WidgetProps> = ({id, sendMessage, setComponentData, scale, data, isOverlayView, draggableChildren}) => {
+  const {type, owner, x, y, width, height, url: srcUrl} = data;
   // Unused state variable
   // https://react.dev/reference/react/useState
   const [disabled, setDisabled] = useState(false);
@@ -126,8 +112,11 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
   }
 
   function renderEmbed() {
-    switch(WidgetType.Embed) {
-      case WidgetType.Embed:
+    switch(data.type) {
+      case "embed":
+        // TODO: embed logic
+        break;
+      case "video":
         // Default to 0 if the offset is missing
         // const offsetSeconds = startTime ? startTimeToOffset(startTime) : 0;
         let offsetSeconds = 6;
@@ -150,7 +139,7 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
           width={width}
           height={height}
           videoId={videoId as string}
-          startTime={videoData ? videoData.timeElapsed : undefined}
+          startTime={data.videoData.timeElapsed}
           onPlayerStateChange={onYoutubePlayerChange}
           showAsView={isOverlayView}
         />
@@ -187,6 +176,10 @@ const Widget: React.FC<WidgetProps> = ({id, owner, x, y, width, height, srcUrl, 
         //   return wrapActiveToggle(embed);
         // }
         return embed;
+        break;
+        case "image":
+          return <img src={srcUrl} />
+          break;
     }
   }
 

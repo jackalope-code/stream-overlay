@@ -314,7 +314,7 @@ app.put("/overlay", (req: Request<{width: number, height: number}>, res) => {
 //       This accepts strings rn and should not.
 app.post("/component", (req, res) => {
   const componentId = randomUUID();
-  const {url, width, height, x, y} = req.body;
+  const {url, width, height, x, y, videoData, type} = req.body;
   const data = {componentId, url, width, height, x, y};
   console.log("RECEIVED DATA", data);
   components[componentId] = data;

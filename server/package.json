@@ -7,7 +7,7 @@
     "dev": "ts-node-dev src/index.ts",
     "compile": "npx tsc",
     "start": "npm run compile && node ./build/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node-dev src/test.ts"
   },
   "author": "",
   "license": "ISC",

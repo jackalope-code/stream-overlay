@@ -128,13 +128,22 @@ const videoUpdateMessage = videoUpdatePartial.shape({
   id: number().required().positive()
 })
 
+const testUpdate = {
+  id: 1,
+  event: 'update',
+  x: 0,
+  y: 0,
+  width: 1,
+  height: 1,
+}
+
 const updateMessage = object({
   id: number().required().positive(),
   event: string().required().oneOf(['update']),
   x: requiredNonNegativeInt,
   y: requiredNonNegativeInt,
-  width: requiredNonNegativeInt,
-  height: requiredNonNegativeInt,
+  width: number().required().positive(),
+  height: number().required().positive(),
 });
 
 // otherwise: object().notRequired(),
